@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
 }
 
 class Registerpage extends StatefulWidget {
-  const Registerpage({super.key});
+  const Registerpage({Key? key}) : super(key: key);
 
   @override
   RegisterFormState createState() => RegisterFormState();
@@ -24,13 +24,15 @@ class RegisterFormState extends State<Registerpage> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _apellidoController = TextEditingController();
   final TextEditingController _dniController = TextEditingController();
+  final TextEditingController _rolController = TextEditingController();
+  final TextEditingController _idDepartamentoController =
+      TextEditingController();
 
   final ApiClient _apiClient = ApiClient();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Envuelve el widget Registerpage con Scaffold
       appBar: AppBar(
         title: Text('Registro'),
       ),
@@ -65,6 +67,16 @@ class RegisterFormState extends State<Registerpage> {
               decoration: const InputDecoration(labelText: 'DNI'),
             ),
             const SizedBox(height: 20),
+            TextFormField(
+              controller: _rolController,
+              decoration: const InputDecoration(labelText: 'Rol'),
+            ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _idDepartamentoController,
+              decoration: const InputDecoration(labelText: 'ID Departamento'),
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _register,
               child: const Text('Registrarse'),
@@ -81,10 +93,14 @@ class RegisterFormState extends State<Registerpage> {
     final String nombre = _nombreController.text;
     final String apellido = _apellidoController.text;
     final String dni = _dniController.text;
+    final String rol = _rolController.text;
+    final String idDepartamento = _idDepartamentoController.text;
 
     // Realiza el registro del usuario
     try {
-      await _apiClient.registerUser(email, password, nombre, apellido, dni);
+      await _apiClient.registerUser(
+          email, password, nombre, apellido, dni, rol, idDepartamento);
+      print('Usuario registrado exitosamente');
       // Si el registro es exitoso, puedes navegar a otra pantalla
       // Navigator.push(context, MaterialPageRoute(builder: (context) => OtraPantalla()));
     } catch (e) {

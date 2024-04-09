@@ -4,7 +4,7 @@ class ApiClient {
   static const String baseUrl = 'http://10.0.2.2:8080/auth';
 
   Future<void> registerUser(String email, String password, String nombre,
-      String apellido, String dni) async {
+      String apellido, String dni, String rol, String idDepartamento) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
