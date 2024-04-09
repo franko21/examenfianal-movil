@@ -28,4 +28,23 @@ class ApiClient {
       print('Error de conexión: $e');
     }
   }
+
+  Future<void> signinUser(String username, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/v1/signin'),
+        body: {'username': username, 'password': password},
+      );
+      if (response.statusCode == 200) {
+        // Registro exitoso
+        print('Usuario logeado exitosamente');
+      } else {
+        // Manejar errores de registro
+        print('Error en el inicio de sesion: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+    }
+  }
 }

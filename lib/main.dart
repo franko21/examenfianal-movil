@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
 
 void main() {
@@ -91,16 +92,22 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   bool _isLoading = false;
 
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final ApiClient _apiClient = ApiClient();
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TextFormField(
+          controller: _usernameController,
           decoration: const InputDecoration(labelText: 'Usuario'),
         ),
         const SizedBox(height: 20),
         TextFormField(
+          controller: _passwordController,
           obscureText: true,
           decoration: const InputDecoration(labelText: 'Contraseña'),
         ),
@@ -134,7 +141,12 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  void _login(BuildContext context) {
+  void _login(BuildContext context) async {
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
+
+    await _apiClient.signinUser(username, password);
+
     setState(() {
       _isLoading = true;
     });
