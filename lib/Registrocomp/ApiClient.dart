@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  static const String baseUrl = 'http://localhost:8080/auth';
+  static const String baseUrl = 'http://10.0.2.2:8080/auth';
 
   Future<void> registerUser(String email, String password, String nombre,
       String apellido, String dni) async {
