@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ApiClient {
   static const String baseUrl = 'http://10.0.2.2:8080/auth';
@@ -8,13 +9,18 @@ class ApiClient {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
-        body: {
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
           'email': email,
           'password': password,
           'nombre': nombre,
           'apellido': apellido,
           'dni': dni,
-        },
+          'rol': rol,
+          'idDepartamento': idDepartamento,
+        }),
       );
       if (response.statusCode == 200) {
         // Registro exitoso
@@ -40,7 +46,7 @@ class ApiClient {
         print('Usuario logeado exitosamente');
       } else {
         // Manejar errores de registro
-        print('Error en el inicio de sesion: ${response.statusCode}');
+        print('Error en el inicio de sesión: ${response.statusCode}');
       }
     } catch (e) {
       // Manejar errores de conexión

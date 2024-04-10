@@ -98,6 +98,7 @@ class RegisterFormState extends State<Registerpage> {
 
     // Realiza el registro del usuario
     try {
+      // Envía los datos al servidor utilizando un formato adecuado
       await _apiClient.registerUser(
           email, password, nombre, apellido, dni, rol, idDepartamento);
       print('Usuario registrado exitosamente');
