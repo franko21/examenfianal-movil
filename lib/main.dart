@@ -145,13 +145,17 @@ class _LoginFormState extends State<LoginForm> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    await _apiClient.signinUser(username, password);
-
     setState(() {
       _isLoading = true;
     });
-
-    // Simulating a network request
+    await _apiClient.signinUser(username, password);
+    print(await _apiClient.signinUser(username, password));
+    // try {
+    //   final bool loginSuccessful =
+    //       await _apiClient.signinUser(username, password);
+    //   print(loginSuccessful);
+    //   if (loginSuccessful) {
+    //     // El inicio de sesión fue exitoso
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _isLoading = false;
@@ -164,6 +168,46 @@ class _LoginFormState extends State<LoginForm> {
         ),
       );
     });
+    //     // Realiza otras acciones después del inicio de sesión
+    //   } else {
+    //     // El inicio de sesión falló
+    //     print('Inicio de sesión fallido');
+
+    //     Future.delayed(const Duration(seconds: 2), () {
+    //       setState(() {
+    //         _isLoading = false;
+    //       });
+    //     });
+    //     bool isVisible = true;
+
+    //     Container(
+    //       padding: EdgeInsets.all(16),
+    //       child: Column(
+    //         mainAxisAlignment: MainAxisAlignment.center,
+    //         children: [
+    //           AnimatedOpacity(
+    //             opacity: isVisible ? 1.0 : 0.0,
+    //             duration: Duration(seconds: 4),
+    //             child: Text(
+    //               '¡Esta modificación desaparecerá!',
+    //               style: TextStyle(fontSize: 20),
+    //             ),
+    //           ),
+    //           SizedBox(height: 20),
+    //         ],
+    //       ),
+    //     );
+    //     // Puedes mostrar un mensaje de error al usuario
+    //   }
+    // } catch (e) {
+    //   // Manejo de errores (por ejemplo, problemas de red, errores del servidor, etc.)
+    //   print('Error durante el inicio de sesión: $e');
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    // }
+
+    // Simulating a network request
   }
 }
 

@@ -20,7 +20,7 @@ class ApiClient {
           'nombre': nombre,
           'apellido': apellido,
           'dni': dni,
-          'rol': rol,
+          'role': rol,
           'idDepartamento': idDepartamento,
         }),
       );
@@ -37,22 +37,26 @@ class ApiClient {
     }
   }
 
-  Future<void> signinUser(String username, String password) async {
+  Future<bool> signinUser(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/v1/signin'),
+        Uri.parse('$baseUrl/v2/signin'),
         body: {'username': username, 'password': password},
       );
       if (response.statusCode == 200) {
         // Registro exitoso
         print('Usuario logeado exitosamente');
+        return true;
       } else {
         // Manejar errores de registro
-        print('Error en el inicio de sesión: ${response.statusCode}');
+        print(
+            'Error en el inicio de sesión:  ${response.statusCode} ${response.toString()} a');
+        return false;
       }
     } catch (e) {
       // Manejar errores de conexión
       print('Error de conexión: $e');
+      return false;
     }
   }
 
