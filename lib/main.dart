@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+String nombreU = '';
 void main() {
   runApp(const MyApp());
 }
@@ -144,70 +146,89 @@ class _LoginFormState extends State<LoginForm> {
   void _login(BuildContext context) async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
+    String role = '';
 
     setState(() {
       _isLoading = true;
     });
-    await _apiClient.signinUser(username, password);
-    print(await _apiClient.signinUser(username, password));
-    // try {
-    //   final bool loginSuccessful =
-    //       await _apiClient.signinUser(username, password);
-    //   print(loginSuccessful);
-    //   if (loginSuccessful) {
-    //     // El inicio de sesión fue exitoso
-    Future.delayed(const Duration(seconds: 2), () {
+
+    try {
+      final String loginSuccessful =
+          await _apiClient.signinUser(username, password, role);
+      if (loginSuccessful.length != 0) {
+        if (loginSuccessful.toString().split(' ')[0] == 'ADMIN') {
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {
+              _isLoading = false;
+            });
+            // Placeholder for login logic
+            print('Login successful');
+            nombreU = loginSuccessful.toString().split(' ')[1] +
+                ' ' +
+                loginSuccessful.toString().split(' ')[2];
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const WelcomeAdminScreen(),
+              ),
+            );
+          });
+        } else {
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {
+              _isLoading = false;
+            });
+            // Placeholder for login logic
+            print('Login successful, Empleado $loginSuccessful.toString()');
+            nombreU = loginSuccessful.toString().split(' ')[1] +
+                ' ' +
+                loginSuccessful.toString().split(' ')[2];
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const WelcomeScreen(),
+              ),
+            );
+          });
+        }
+        // El inicio de sesión fue exitoso
+
+        // Realiza otras acciones después del inicio de sesión
+      } else {
+        // El inicio de sesión falló
+        print('Inicio de sesión fallido');
+
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {
+            _isLoading = false;
+          });
+          // Mostrar notificación de error al usuario
+          _showErrorNotification(context,
+              'Inicio de sesión fallido, Revisa el usuario y la contrasenia');
+        });
+      }
+    } catch (e) {
+      // Manejo de errores (por ejemplo, problemas de red, errores del servidor, etc.)
+      print('Error durante el inicio de sesión: $e');
       setState(() {
         _isLoading = false;
       });
-      // Placeholder for login logic
-      print('Login successful');
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const WelcomeScreen(),
-        ),
-      );
-    });
-    //     // Realiza otras acciones después del inicio de sesión
-    //   } else {
-    //     // El inicio de sesión falló
-    //     print('Inicio de sesión fallido');
-
-    //     Future.delayed(const Duration(seconds: 2), () {
-    //       setState(() {
-    //         _isLoading = false;
-    //       });
-    //     });
-    //     bool isVisible = true;
-
-    //     Container(
-    //       padding: EdgeInsets.all(16),
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         children: [
-    //           AnimatedOpacity(
-    //             opacity: isVisible ? 1.0 : 0.0,
-    //             duration: Duration(seconds: 4),
-    //             child: Text(
-    //               '¡Esta modificación desaparecerá!',
-    //               style: TextStyle(fontSize: 20),
-    //             ),
-    //           ),
-    //           SizedBox(height: 20),
-    //         ],
-    //       ),
-    //     );
-    //     // Puedes mostrar un mensaje de error al usuario
-    //   }
-    // } catch (e) {
-    //   // Manejo de errores (por ejemplo, problemas de red, errores del servidor, etc.)
-    //   print('Error durante el inicio de sesión: $e');
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // }
+      _showErrorNotification(context, 'Error: $e');
+    }
 
     // Simulating a network request
+  }
+
+  void _showErrorNotification(BuildContext context, String message) {
+    // Implementa la lógica para mostrar una notificación al usuario
+    // Puedes usar paquetes como `fluttertoast` o `snackbar` para mostrar la notificación
+    // Aquí un ejemplo con `fluttertoast`:
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 10,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+    );
   }
 }
 
@@ -218,7 +239,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Welcome'),
+          title: Text('Bienvenido $nombreU'),
         ),
         body: MyHomePage() //const Center(
         //   child: Column(
@@ -284,7 +305,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Marcaciones'),
+        title: Text('Marcaciones Empleado'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              // Lógica para cerrar sesión
+              // Por ejemplo, llamar a una función que maneje el cierre de sesión
+              Future.delayed(const Duration(seconds: 2), () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              });
+              print('Cerrando sesión...');
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -307,7 +345,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       _dataList,
                       '${_selectedDate.toString().split(' ')[0]} 00:00:00',
                       '${_selectedDate2.toString().split(' ')[0]} 23:59:59');
-                  print('Búsqueda realizada para fecha $_selectedDate');
+                  print(
+                      'Búsqueda realizada para fecha ${_selectedDate.toString().split(' ')[0]} 00:00:00 ${_selectedDate2.toString().split(' ')[0]} 23:59:59');
                 },
                 child: Text('Buscar'),
               ),
@@ -321,6 +360,179 @@ class _MyHomePageState extends State<MyHomePage> {
                   : 'Ninguna fecha seleccionada',
               style: TextStyle(fontSize: 18),
             ),
+          ),
+          SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('ID')),
+                  DataColumn(label: Text('Nombre')),
+                  DataColumn(label: Text('Terminal')),
+                  DataColumn(label: Text('Area')),
+                  DataColumn(label: Text('Fecha')),
+                  DataColumn(label: Text('Hora')),
+                  DataColumn(label: Text('Día')),
+                ],
+                rows: _dataList.map((data) {
+                  return DataRow(cells: [
+                    DataCell(Text(data.split(',')[0])),
+                    DataCell(Text(data.split(',')[1])),
+                    DataCell(Text(data.split(',')[11])),
+                    DataCell(Text(data.split(',')[12])),
+                    DataCell(Text(data.split(',')[6].split(' ')[0])),
+                    DataCell(Text(data.split(',')[6].split(' ')[1])),
+                    DataCell(Text(getDayOfWeek(data.split(',')[6]))),
+                  ]);
+                }).toList(),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+class WelcomeAdminScreen extends StatelessWidget {
+  const WelcomeAdminScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Bienvenido $nombreU'),
+        ),
+        body: MyHomeAdminPage() //const Center(
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: [
+        //       Icon(Icons.pets, size: 100),
+        //       SizedBox(height: 20),
+        //       Text(
+        //         'Welcome to Cat Litter Sales!',
+        //         style: TextStyle(fontSize: 24),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        );
+  }
+}
+
+class MyHomeAdminPage extends StatefulWidget {
+  @override
+  _MyHomeAdminPageState createState() => _MyHomeAdminPageState();
+}
+
+class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
+  DateTime? _selectedDate;
+  DateTime? _selectedDate2;
+  List<String> _dataList = [];
+  String searchText = '';
+  final ApiClient _apiClient = ApiClient();
+
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
+  }
+
+  void _presentDatePicker2() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    ).then((pickedDate2) {
+      if (pickedDate2 == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate2 = pickedDate2;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Marcaciones Talento Humano'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              // Lógica para cerrar sesión
+              // Por ejemplo, llamar a una función que maneje el cierre de sesión
+              Future.delayed(const Duration(seconds: 2), () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              });
+              print('Cerrando sesión...');
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchText = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Cedula empleado...',
+                  ),
+                ),
+              ),
+              SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: _presentDatePicker,
+                child: Text('Fecha Inicio'),
+              ),
+              SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: _presentDatePicker2,
+                child: Text('Fecha Fin'),
+              ),
+              SizedBox(width: 16),
+            ],
+          ),
+          Container(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              _selectedDate != null
+                  ? 'Fecha seleccionada: ${_selectedDate}'
+                  : 'Ninguna fecha seleccionada',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Lógica para realizar la búsqueda
+              _apiClient.dataTableE(
+                _dataList,
+                '${_selectedDate.toString().split(' ')[0]} 00:00:00',
+                '${_selectedDate2.toString().split(' ')[0]} 23:59:59',
+              );
+              print('Búsqueda realizada para fecha $_selectedDate');
+            },
+            child: Text('Buscar'),
           ),
           SingleChildScrollView(
               scrollDirection: Axis.horizontal,
