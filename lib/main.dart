@@ -2,10 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:table_sticky_headers/table_sticky_headers.dart';
 
 String nombreU = '';
+String dniU = '';
+List<String> _dataListU = [];
+final ApiClient _apiClient = ApiClient();
 void main() {
   runApp(const MyApp());
+}
+
+void _showErrorNotification(BuildContext context, String message, int c) {
+  // Implementa la lógica para mostrar una notificación al usuario
+  // Puedes usar paquetes como `fluttertoast` o `snackbar` para mostrar la notificación
+  // Aquí un ejemplo con `fluttertoast`:
+  switch (c) {
+    case 0:
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 10,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      break;
+    case 1:
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 10,
+        backgroundColor: Colors.yellow,
+        textColor: Colors.black,
+      );
+      break;
+  }
+  Fluttertoast.showToast(
+    msg: message,
+    toastLength: Toast.LENGTH_LONG,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 10,
+    backgroundColor: Colors.red,
+    textColor: Colors.white,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -166,6 +206,9 @@ class _LoginFormState extends State<LoginForm> {
             nombreU = loginSuccessful.toString().split(' ')[1] +
                 ' ' +
                 loginSuccessful.toString().split(' ')[2];
+            nombreU = loginSuccessful.toString().split(' ')[1] +
+                ' ' +
+                loginSuccessful.toString().split(' ')[2];
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => const WelcomeAdminScreen(),
@@ -174,19 +217,20 @@ class _LoginFormState extends State<LoginForm> {
           });
         } else {
           Future.delayed(const Duration(seconds: 2), () {
-            setState(() {
-              _isLoading = false;
-            });
             // Placeholder for login logic
             print('Login successful, Empleado $loginSuccessful.toString()');
             nombreU = loginSuccessful.toString().split(' ')[1] +
                 ' ' +
                 loginSuccessful.toString().split(' ')[2];
+            dniU = loginSuccessful.toString().split(' ')[3];
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => const WelcomeScreen(),
               ),
             );
+            setState(() {
+              _isLoading = false;
+            });
           });
         }
         // El inicio de sesión fue exitoso
@@ -201,8 +245,10 @@ class _LoginFormState extends State<LoginForm> {
             _isLoading = false;
           });
           // Mostrar notificación de error al usuario
-          _showErrorNotification(context,
-              'Inicio de sesión fallido, Revisa el usuario y la contrasenia');
+          _showErrorNotification(
+              context,
+              'Inicio de sesión fallido, Revisa el usuario y la contrasenia',
+              0);
         });
       }
     } catch (e) {
@@ -211,24 +257,10 @@ class _LoginFormState extends State<LoginForm> {
       setState(() {
         _isLoading = false;
       });
-      _showErrorNotification(context, 'Error: $e');
+      _showErrorNotification(context, 'Error: $e', 0);
     }
 
     // Simulating a network request
-  }
-
-  void _showErrorNotification(BuildContext context, String message) {
-    // Implementa la lógica para mostrar una notificación al usuario
-    // Puedes usar paquetes como `fluttertoast` o `snackbar` para mostrar la notificación
-    // Aquí un ejemplo con `fluttertoast`:
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 10,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-    );
   }
 }
 
@@ -266,8 +298,28 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   DateTime? _selectedDate;
   DateTime? _selectedDate2;
-  List<String> _dataList = [];
-  final ApiClient _apiClient = ApiClient();
+
+  void _dataTableOn(DateTime? _selectedDate, DateTime? _selectedDate2) async {
+    final List<String> _dataListE = await _apiClient.dataTableET(
+      '${_selectedDate.toString().split(' ')[0]}T00:00:00',
+      '${_selectedDate2.toString().split(' ')[0]}T23:59:59',
+      dniU,
+    );
+
+    setState(() {
+      // Actualiza _dataListU con los nuevos datos
+      _dataListU = _dataListE;
+    });
+
+    if (_dataListU.length == 0) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'No se encontraron datos', 1);
+      });
+    }
+
+    print('$_dataListU');
+  }
 
   void _presentDatePicker() {
     showDatePicker(
@@ -310,21 +362,29 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () {
+              _dataListU = [];
+              dniU = '';
+
               // Lógica para cerrar sesión
               // Por ejemplo, llamar a una función que maneje el cierre de sesión
               Future.delayed(const Duration(seconds: 2), () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
-                  ),
-                );
+                try {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginPage(),
+                    ),
+                  );
+                } catch (e) {
+                  print('$e');
+                }
               });
               print('Cerrando sesión...');
             },
           ),
         ],
       ),
-      body: Column(
+      body: SingleChildScrollView(
+          child: Column(
         children: [
           Row(
             children: [
@@ -341,12 +401,31 @@ class _MyHomePageState extends State<MyHomePage> {
               ElevatedButton(
                 onPressed: () {
                   // Lógica para realizar la búsqueda
-                  _apiClient.dataTableE(
-                      _dataList,
-                      '${_selectedDate.toString().split(' ')[0]} 00:00:00',
-                      '${_selectedDate2.toString().split(' ')[0]} 23:59:59');
-                  print(
-                      'Búsqueda realizada para fecha ${_selectedDate.toString().split(' ')[0]} 00:00:00 ${_selectedDate2.toString().split(' ')[0]} 23:59:59');
+                  if (_selectedDate == null) {
+                    Future.delayed(const Duration(seconds: 2), () {
+                      // Mostrar notificación de error al usuario
+                      _showErrorNotification(
+                          context, 'Debe de seleccionar la fecha de inicio', 0);
+                    });
+                  } else if (_selectedDate2 == null) {
+                    Future.delayed(const Duration(seconds: 2), () {
+                      // Mostrar notificación de error al usuario
+                      _showErrorNotification(
+                          context, 'Debe de seleccionar la fecha fin', 0);
+                    });
+                  } else if (_selectedDate2?.isBefore(_selectedDate!) ??
+                      false) {
+                    Future.delayed(const Duration(seconds: 2), () {
+                      // Mostrar notificación de error al usuario
+                      _showErrorNotification(
+                          context,
+                          'La fecha de inicio debe ser igual o anterior a la fecha fin',
+                          0);
+                    });
+                  } else {
+                    _dataTableOn(_selectedDate, _selectedDate2);
+                    print('Búsqueda realizada para fecha $_selectedDate');
+                  }
                 },
                 child: Text('Buscar'),
               ),
@@ -356,7 +435,7 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: EdgeInsets.all(16),
             child: Text(
               _selectedDate != null
-                  ? 'Fecha seleccionada: ${_selectedDate}'
+                  ? 'Inicio: ${_selectedDate.toString().split(' ')[0]}- Fin:${_selectedDate2.toString().split(' ')[0]}'
                   : 'Ninguna fecha seleccionada',
               style: TextStyle(fontSize: 18),
             ),
@@ -365,28 +444,29 @@ class _MyHomePageState extends State<MyHomePage> {
               scrollDirection: Axis.horizontal,
               child: DataTable(
                 columns: [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('Terminal')),
-                  DataColumn(label: Text('Area')),
+                  DataColumn(label: Text('Cedula')),
+                  DataColumn(label: Text('Colaborador')),
                   DataColumn(label: Text('Fecha')),
-                  DataColumn(label: Text('Hora')),
-                  DataColumn(label: Text('Día')),
+                  DataColumn(label: Text('Tipo')),
+                  DataColumn(label: Text('VerifyCode')),
+                  DataColumn(label: Text('SensorId')),
+                  DataColumn(label: Text('Aprobacion')),
                 ],
-                rows: _dataList.map((data) {
+                rows: _dataListU.map((data) {
                   return DataRow(cells: [
-                    DataCell(Text(data.split(',')[0])),
-                    DataCell(Text(data.split(',')[1])),
-                    DataCell(Text(data.split(',')[11])),
-                    DataCell(Text(data.split(',')[12])),
-                    DataCell(Text(data.split(',')[6].split(' ')[0])),
-                    DataCell(Text(data.split(',')[6].split(' ')[1])),
-                    DataCell(Text(getDayOfWeek(data.split(',')[6]))),
+                    DataCell(Text(data.split(',')[2])),
+                    DataCell(Text(data.split(',')[3])),
+                    DataCell(Text(data.split(',')[4])),
+                    DataCell(Text(
+                        data.split(',')[5] != null ? data.split(',')[5] : '')),
+                    DataCell(Text(data.split(',')[6])),
+                    DataCell(Text(data.split(',')[7])),
+                    DataCell(Text(data.split(',')[8])),
                   ]);
                 }).toList(),
               )),
         ],
-      ),
+      )),
     );
   }
 }
@@ -425,9 +505,28 @@ class MyHomeAdminPage extends StatefulWidget {
 class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
   DateTime? _selectedDate;
   DateTime? _selectedDate2;
-  List<String> _dataList = [];
   String searchText = '';
-  final ApiClient _apiClient = ApiClient();
+
+  void _dataTableOn(DateTime? _selectedDate, DateTime? _selectedDate2) async {
+    final List<String> _dataListE = await _apiClient.dataTableET(
+      '${_selectedDate.toString().split(' ')[0]}T00:00:00',
+      '${_selectedDate2.toString().split(' ')[0]}T23:59:59',
+      searchText,
+    );
+    setState(() {
+      // Actualiza _dataListU con los nuevos datos
+      _dataListU = _dataListE;
+    });
+
+    if (_dataListU.length == 0) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'No se encontraron datos', 1);
+      });
+    }
+
+    print('$_dataListU');
+  }
 
   void _presentDatePicker() {
     showDatePicker(
@@ -470,10 +569,12 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
           IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () {
+              _dataListU = [];
+              dniU = '';
               // Lógica para cerrar sesión
               // Por ejemplo, llamar a una función que maneje el cierre de sesión
               Future.delayed(const Duration(seconds: 2), () {
-                Navigator.of(context).pushReplacement(
+                Navigator?.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const LoginPage(),
                   ),
@@ -484,7 +585,8 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
           ),
         ],
       ),
-      body: Column(
+      body: SingleChildScrollView(
+          child: Column(
         children: [
           Row(
             children: [
@@ -517,7 +619,7 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
             padding: EdgeInsets.all(16),
             child: Text(
               _selectedDate != null
-                  ? 'Fecha seleccionada: ${_selectedDate}'
+                  ? 'Inicio: ${_selectedDate.toString().split(' ')[0]}- Fin:${_selectedDate2.toString().split(' ')[0]}'
                   : 'Ninguna fecha seleccionada',
               style: TextStyle(fontSize: 18),
             ),
@@ -525,12 +627,36 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
           ElevatedButton(
             onPressed: () {
               // Lógica para realizar la búsqueda
-              _apiClient.dataTableE(
-                _dataList,
-                '${_selectedDate.toString().split(' ')[0]} 00:00:00',
-                '${_selectedDate2.toString().split(' ')[0]} 23:59:59',
-              );
-              print('Búsqueda realizada para fecha $_selectedDate');
+              if (searchText.isEmpty) {
+                Future.delayed(const Duration(seconds: 2), () {
+                  // Mostrar notificación de error al usuario
+                  _showErrorNotification(
+                      context, 'Debe de ingresar la cedula del usuario', 0);
+                });
+              } else if (_selectedDate == null) {
+                Future.delayed(const Duration(seconds: 2), () {
+                  // Mostrar notificación de error al usuario
+                  _showErrorNotification(
+                      context, 'Debe de seleccionar la fecha de inicio', 0);
+                });
+              } else if (_selectedDate2 == null) {
+                Future.delayed(const Duration(seconds: 2), () {
+                  // Mostrar notificación de error al usuario
+                  _showErrorNotification(
+                      context, 'Debe de seleccionar la fecha fin', 0);
+                });
+              } else if (_selectedDate2?.isBefore(_selectedDate!) ?? false) {
+                Future.delayed(const Duration(seconds: 2), () {
+                  // Mostrar notificación de error al usuario
+                  _showErrorNotification(
+                      context,
+                      'La fecha de inicio debe ser igual o anterior a la fecha fin',
+                      0);
+                });
+              } else {
+                _dataTableOn(_selectedDate, _selectedDate2);
+                print('Búsqueda realizada para fecha $_selectedDate');
+              }
             },
             child: Text('Buscar'),
           ),
@@ -538,28 +664,30 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
               scrollDirection: Axis.horizontal,
               child: DataTable(
                 columns: [
-                  DataColumn(label: Text('ID')),
-                  DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('Terminal')),
-                  DataColumn(label: Text('Area')),
+                  DataColumn(label: Text('Cedula')),
+                  DataColumn(label: Text('Colaborador')),
                   DataColumn(label: Text('Fecha')),
-                  DataColumn(label: Text('Hora')),
-                  DataColumn(label: Text('Día')),
+                  DataColumn(label: Text('Tipo')),
+                  DataColumn(label: Text('VerifyCode')),
+                  DataColumn(label: Text('SensorId')),
+                  DataColumn(label: Text('Aprobacion')),
                 ],
-                rows: _dataList.map((data) {
+                rows: _dataListU.map((data) {
                   return DataRow(cells: [
-                    DataCell(Text(data.split(',')[0])),
-                    DataCell(Text(data.split(',')[1])),
-                    DataCell(Text(data.split(',')[11])),
-                    DataCell(Text(data.split(',')[12])),
-                    DataCell(Text(data.split(',')[6].split(' ')[0])),
-                    DataCell(Text(data.split(',')[6].split(' ')[1])),
-                    DataCell(Text(getDayOfWeek(data.split(',')[6]))),
+                    DataCell(Text(data.split(',')[2])),
+                    DataCell(Text(data.split(',')[3])),
+                    DataCell(Text(data.split(',')[4])),
+                    DataCell(Text(
+                        data.split(',')[5] != null ? data.split(',')[5] : '')),
+                    DataCell(Text(data.split(',')[6])),
+                    DataCell(Text(data.split(',')[7])),
+                    DataCell(Text(data.split(',')[8])),
+                    // DataCell(Text(getDayOfWeek(data.split(',')[6] + '.000'))),
                   ]);
                 }).toList(),
               )),
         ],
-      ),
+      )),
     );
   }
 }

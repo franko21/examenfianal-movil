@@ -38,7 +38,8 @@ class RegisterFormState extends State<Registerpage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
+        child: SingleChildScrollView(
+            child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
@@ -82,7 +83,7 @@ class RegisterFormState extends State<Registerpage> {
               child: const Text('Registrarse'),
             ),
           ],
-        ),
+        )),
       ),
     );
   }
