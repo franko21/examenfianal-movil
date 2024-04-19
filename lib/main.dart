@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:table_sticky_headers/table_sticky_headers.dart';
 
 String nombreU = '';
 String dniU = '';
@@ -38,14 +37,6 @@ void _showErrorNotification(BuildContext context, String message, int c) {
       );
       break;
   }
-  Fluttertoast.showToast(
-    msg: message,
-    toastLength: Toast.LENGTH_LONG,
-    gravity: ToastGravity.BOTTOM,
-    timeInSecForIosWeb: 10,
-    backgroundColor: Colors.red,
-    textColor: Colors.white,
-  );
 }
 
 class MyApp extends StatelessWidget {
@@ -447,6 +438,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   DataColumn(label: Text('Cedula')),
                   DataColumn(label: Text('Colaborador')),
                   DataColumn(label: Text('Fecha')),
+                  DataColumn(label: Text('Hora')),
                   DataColumn(label: Text('Tipo')),
                   DataColumn(label: Text('VerifyCode')),
                   DataColumn(label: Text('SensorId')),
@@ -456,7 +448,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   return DataRow(cells: [
                     DataCell(Text(data.split(',')[2])),
                     DataCell(Text(data.split(',')[3])),
-                    DataCell(Text(data.split(',')[4])),
+                    DataCell(Text(data.split(',')[4].split(' ')[0])),
+                    DataCell(Text(data.split(',')[4].split(' ')[1])),
                     DataCell(Text(
                         data.split(',')[5] != null ? data.split(',')[5] : '')),
                     DataCell(Text(data.split(',')[6])),
@@ -667,6 +660,7 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
                   DataColumn(label: Text('Cedula')),
                   DataColumn(label: Text('Colaborador')),
                   DataColumn(label: Text('Fecha')),
+                  DataColumn(label: Text('Hora')),
                   DataColumn(label: Text('Tipo')),
                   DataColumn(label: Text('VerifyCode')),
                   DataColumn(label: Text('SensorId')),
@@ -676,7 +670,8 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
                   return DataRow(cells: [
                     DataCell(Text(data.split(',')[2])),
                     DataCell(Text(data.split(',')[3])),
-                    DataCell(Text(data.split(',')[4])),
+                    DataCell(Text(data.split(',')[4].split(' ')[0])),
+                    DataCell(Text(data.split(',')[4].split(' ')[1])),
                     DataCell(Text(
                         data.split(',')[5] != null ? data.split(',')[5] : '')),
                     DataCell(Text(data.split(',')[6])),

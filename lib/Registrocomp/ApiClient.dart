@@ -23,8 +23,38 @@ class ApiClient {
   static const String baseUrl = 'http://10.0.2.2:8080/auth';
   static const String baseUrl2 =
       'http://10.0.2.2:8080/api/personnelE/iclockT/fecha/v2';
+  static const String baseUrl3 = 'http://10.0.2.2:8080/api/userinfo/v2';
+  static const String baseUrl4 = 'http://10.0.2.2:8080/departamentos/v2';
 
-  Future<void> registerUser(String email, String password, String nombre,
+  Future<String> existeEmpleado(String cedula) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl3/$cedula'),
+      );
+      if (response.statusCode == 200) {
+        // Registro exitoso
+        final List<dynamic> stringList = json.decode(response.body);
+        List<String> _dataList2 =
+            stringList.map((element) => element.toString()).toList();
+        if (_dataList2.length == 0) {
+          return '';
+        } else {
+          print('Empleado existe');
+          return 'existe';
+        }
+      } else {
+        // Manejar errores de registro
+        print('Error: ${response.statusCode}');
+        return '';
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return '';
+    }
+  }
+
+  Future<bool> registerUser(String email, String password, String nombre,
       String apellido, String dni, String rol, String idDepartamento) async {
     try {
       final response = await http.post(
@@ -45,13 +75,16 @@ class ApiClient {
       if (response.statusCode == 200) {
         // Registro exitoso
         print('Usuario registrado exitosamente');
+        return true;
       } else {
         // Manejar errores de registro
         print('Error en el registro: ${response.statusCode}');
+        return false;
       }
     } catch (e) {
       // Manejar errores de conexión
       print('Error de conexión: $e');
+      return false;
     }
   }
 
@@ -133,6 +166,34 @@ class ApiClient {
       } else {
         print('Error al obtener datos desde la API: ${response.statusCode}');
         print('$baseUrl2/$emp_code/$fechaI/$fechaF');
+        return _dataList2 = [];
+        ;
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return _dataList2 = [];
+    }
+  }
+
+  Future<List<String>> departamentos() async {
+    List<String> _dataList2;
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl4'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> stringList = json.decode(response.body);
+        List<String> _dataList2 =
+            stringList.map((element) => element.toString()).toList();
+        print('Exito -> $baseUrl4');
+        // String a = _dataList2.toString();
+        // print('$_dataList2');
+        return _dataList2;
+      } else {
+        print('Error al obtener datos desde la API: ${response.statusCode}');
+        print('$baseUrl4');
         return _dataList2 = [];
         ;
       }

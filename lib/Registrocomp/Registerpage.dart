@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ApiClient.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -9,6 +10,21 @@ class MyApp extends StatelessWidget {
       home: Registerpage(),
     );
   }
+}
+
+void _showErrorNotification(BuildContext context, String message) {
+  // Implementa la lógica para mostrar una notificación al usuario
+  // Puedes usar paquetes como `fluttertoast` o `snackbar` para mostrar la notificación
+  // Aquí un ejemplo con `fluttertoast`:
+
+  Fluttertoast.showToast(
+    msg: message,
+    toastLength: Toast.LENGTH_LONG,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 10,
+    backgroundColor: Colors.yellow,
+    textColor: Colors.black,
+  );
 }
 
 class Registerpage extends StatefulWidget {
@@ -27,8 +43,20 @@ class RegisterFormState extends State<Registerpage> {
   final TextEditingController _rolController = TextEditingController();
   final TextEditingController _idDepartamentoController =
       TextEditingController();
-
   final ApiClient _apiClient = ApiClient();
+  String _selectedValueRol = 'ADMIN';
+  String _selectedValueDepa = 'Departmentos';
+  List<String> depas = ['Departmentos', 'Otros'];
+
+  void _depas() async {
+    final List<String> depasexits = await _apiClient.departamentos();
+
+    setState(() {
+      depas = depasexits;
+      _selectedValueDepa = depas[0];
+    });
+    print('$depas');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +71,9 @@ class RegisterFormState extends State<Registerpage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
+              onTap: () {
+                _depas();
+              },
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
@@ -68,18 +99,70 @@ class RegisterFormState extends State<Registerpage> {
               decoration: const InputDecoration(labelText: 'DNI'),
             ),
             const SizedBox(height: 20),
-            TextFormField(
-              controller: _rolController,
-              decoration: const InputDecoration(labelText: 'Rol'),
+            Text(
+              'Rol',
+              textAlign: TextAlign.left,
             ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _idDepartamentoController,
-              decoration: const InputDecoration(labelText: 'ID Departamento'),
+            DropdownButton<String>(
+              value: _selectedValueRol,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedValueRol = newValue!;
+                });
+              },
+              items: <String>['ADMIN', 'USER']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
             ),
-            const SizedBox(height: 20),
+            Text(
+              'Departamentos',
+              textAlign: TextAlign.left,
+            ),
+            DropdownButton<String>(
+              value: _selectedValueDepa,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedValueDepa = newValue!;
+                });
+              },
+              items: depas.map<DropdownMenuItem<String>>((String value2) {
+                return DropdownMenuItem<String>(
+                  value: value2,
+                  child: Text(value2),
+                );
+              }).toList(),
+            ),
+            // TextFormField(
+            //   controller: _rolController,
+            //   decoration: const InputDecoration(labelText: 'Rol'),
+            // ),
+            // const SizedBox(height: 20),
+            // TextFormField(
+            //   controller: _idDepartamentoController,
+            //   decoration: const InputDecoration(labelText: 'ID Departamento'),
+            // ),
+            // const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _register,
+              onPressed:
+                  // final String empleadoExists = await _apiClient
+                  //     .existeEmpleado(_dniController.text.toString() ?? '');
+
+                  _register
+
+              // else if (empleadoExists.length == 0) {
+              //   Future.delayed(const Duration(seconds: 2), () {
+              //     // Mostrar notificación de error al usuario
+              //     _showErrorNotification(context, 'El empleado no existe');
+              //   });
+              // } else if (empleadoExists.length != 0) {
+              //   print(empleadoExists);
+
+              //}
+              ,
               child: const Text('Registrarse'),
             ),
           ],
@@ -97,19 +180,89 @@ class RegisterFormState extends State<Registerpage> {
     final String rol = _rolController.text;
     final String idDepartamento = _idDepartamentoController.text;
 
-    // Realiza el registro del usuario
+    if (_emailController.text.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'Debe de ingresar el email');
+      });
+      return;
+    } else if (_passwordController.text.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'Debe de ingresar la contrasenia');
+      });
+      return;
+    } else if (_nombreController.text.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'Debe de ingresar sus nombres');
+      });
+      return;
+    } else if (_apellidoController.text.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'Debe de ingresar sus apellidos');
+      });
+      return;
+    } else if (_dniController.text.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'Debe de ingresar su cedula');
+      });
+      return;
+    } else if (_idDepartamentoController.text.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(
+            context, 'Debe de ingresar a que departamento pertenece');
+      });
+      return;
+    }
+
     try {
       // Envía los datos al servidor utilizando un formato adecuado
-      await _apiClient.registerUser(
-          email, password, nombre, apellido, dni, rol, idDepartamento);
-      print('Usuario registrado exitosamente');
+      final String exists =
+          await _apiClient.existeEmpleado(_dniController.text);
+      if (exists.length == 0) {
+        Future.delayed(const Duration(seconds: 2), () {
+          // Mostrar notificación de error al usuario
+          _showErrorNotification(context, 'No existe ese empleado con ese dni');
+        });
+        return;
+      } else {
+        try {
+          // Envía los datos al servidor utilizando un formato adecuado
+          final bool register = await _apiClient.registerUser(email, password,
+              nombre, apellido, dni, _selectedValueRol, idDepartamento);
+          if (register) {
+            Future.delayed(const Duration(seconds: 2), () {
+              // Mostrar notificación de error al usuario
+              _showErrorNotification(context, 'Empleado registrado con exito');
+            });
+          } else {
+            Future.delayed(const Duration(seconds: 2), () {
+              // Mostrar notificación de error al usuario
+              _showErrorNotification(
+                  context, 'Email en uso, o empleado ya registrado');
+            });
+          }
+          // Si el registro es exitoso, puedes navegar a otra pantalla
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => OtraPantalla()));
+        } catch (e) {
+          // Maneja los errores aquí
+          print('Error al registrar al usuario: $e');
+          // Muestra un diálogo de error o realiza alguna otra acción apropiada
+        }
+      }
       // Si el registro es exitoso, puedes navegar a otra pantalla
       // Navigator.push(context, MaterialPageRoute(builder: (context) => OtraPantalla()));
     } catch (e) {
       // Maneja los errores aquí
-      print('Error al registrar al usuario: $e');
+      print('Error al buscar empleado: $e');
       // Muestra un diálogo de error o realiza alguna otra acción apropiada
     }
+
+    // Realiza el registro del usuario
   }
 }
 
