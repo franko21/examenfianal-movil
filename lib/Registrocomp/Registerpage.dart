@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/main.dart';
 import 'ApiClient.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -177,8 +178,10 @@ class RegisterFormState extends State<Registerpage> {
     final String nombre = _nombreController.text;
     final String apellido = _apellidoController.text;
     final String dni = _dniController.text;
-    final String rol = _rolController.text;
-    final String idDepartamento = _idDepartamentoController.text;
+    final String rol = _selectedValueRol.toString(); // _rolController.text;
+    final String idDepartamento = _selectedValueDepa
+        .toString()
+        .split(' ')[0]; //_idDepartamentoController.text;
 
     if (_emailController.text.isEmpty) {
       Future.delayed(const Duration(seconds: 2), () {
@@ -210,7 +213,13 @@ class RegisterFormState extends State<Registerpage> {
         _showErrorNotification(context, 'Debe de ingresar su cedula');
       });
       return;
-    } else if (_idDepartamentoController.text.isEmpty) {
+    } else if (rol.isEmpty) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        _showErrorNotification(context, 'Debe de ingresar su rol');
+      });
+      return;
+    } else if (idDepartamento.isEmpty) {
       Future.delayed(const Duration(seconds: 2), () {
         // Mostrar notificación de error al usuario
         _showErrorNotification(
@@ -221,8 +230,8 @@ class RegisterFormState extends State<Registerpage> {
 
     try {
       // Envía los datos al servidor utilizando un formato adecuado
-      final String exists =
-          await _apiClient.existeEmpleado(_dniController.text);
+      final String exists = await _apiClient
+          .existeEmpleado(_dniController.text.replaceAll(RegExp(r'^0+'), ''));
       if (exists.length == 0) {
         Future.delayed(const Duration(seconds: 2), () {
           // Mostrar notificación de error al usuario
@@ -232,12 +241,19 @@ class RegisterFormState extends State<Registerpage> {
       } else {
         try {
           // Envía los datos al servidor utilizando un formato adecuado
+          String dnii = dni.replaceAll(RegExp(r'^0+'), '');
           final bool register = await _apiClient.registerUser(email, password,
-              nombre, apellido, dni, _selectedValueRol, idDepartamento);
+              nombre, apellido, dnii, _selectedValueRol, idDepartamento);
           if (register) {
             Future.delayed(const Duration(seconds: 2), () {
               // Mostrar notificación de error al usuario
               _showErrorNotification(context, 'Empleado registrado con exito');
+            });
+            Future.delayed(const Duration(seconds: 5), () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
             });
           } else {
             Future.delayed(const Duration(seconds: 2), () {

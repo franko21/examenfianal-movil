@@ -93,7 +93,10 @@ class ApiClient {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/v2/signin'),
-        body: {'username': username, 'password': password},
+        body: {
+          'username': username.replaceAll(RegExp(r'^0+'), ''),
+          'password': password
+        },
       );
 
       if (response.statusCode == 200) {
@@ -150,22 +153,23 @@ class ApiClient {
   Future<List<String>> dataTableET(
       String fechaI, String fechaF, String emp_code) async {
     List<String> _dataList2;
+    String emp_codee = emp_code.replaceAll(RegExp(r'^0+'), '');
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl2/$emp_code/$fechaI/$fechaF'),
+        Uri.parse('$baseUrl2/$emp_codee/$fechaI/$fechaF'),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> stringList = json.decode(response.body);
         List<String> _dataList2 =
             stringList.map((element) => element.toString()).toList();
-        print('Exito -> $baseUrl2/$emp_code/$fechaI/$fechaF');
+        print('Exito -> $baseUrl2/$emp_codee/$fechaI/$fechaF');
         // String a = _dataList2.toString();
         // print('$_dataList2');
         return _dataList2;
       } else {
         print('Error al obtener datos desde la API: ${response.statusCode}');
-        print('$baseUrl2/$emp_code/$fechaI/$fechaF');
+        print('$baseUrl2/$emp_codee/$fechaI/$fechaF');
         return _dataList2 = [];
         ;
       }
