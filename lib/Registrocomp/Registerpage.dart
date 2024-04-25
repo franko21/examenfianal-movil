@@ -49,8 +49,8 @@ class RegisterFormState extends State<Registerpage> {
       TextEditingController();
   final ApiClient _apiClient = ApiClient();
   String _selectedValueRol = 'ADMIN';
-  String _selectedValueDepa = 'Departmentos';
-  List<String> depas = ['Departmentos', 'Otros'];
+  String _selectedValueDepa = 'Seleccionar';
+  List<String> depas = ['Seleccionar', 'Departmentos', 'Otros'];
 
   void _depas() async {
     final List<String>? depasexits = await _apiClient.departamentos();
@@ -73,95 +73,92 @@ class RegisterFormState extends State<Registerpage> {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: const Text('Registro'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextFormField(
-              onTap: () {
-                _depas();
-              },
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _apellidoController,
-              decoration: const InputDecoration(labelText: 'Apellido'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _dniController,
-              decoration: const InputDecoration(labelText: 'DNI'),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'ADMIN',
-              textAlign: TextAlign.left,
-            ),
-            const Text(
-              'Departamentos',
-              textAlign: TextAlign.left,
-            ),
-            DropdownButton<String>(
-              value: _selectedValueDepa,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedValueDepa = newValue!;
-                });
-              },
-              items: depas.map<DropdownMenuItem<String>>((String value2) {
-                return DropdownMenuItem<String>(
-                  value: value2,
-                  child: Text(value2),
-                );
-              }).toList(),
-            ),
-            // TextFormField(
-            //   controller: _rolController,
-            //   decoration: const InputDecoration(labelText: 'Rol'),
-            // ),
-            // const SizedBox(height: 20),
-            // TextFormField(
-            //   controller: _idDepartamentoController,
-            //   decoration: const InputDecoration(labelText: 'ID Departamento'),
-            // ),
-            // const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed:
-                  // final String empleadoExists = await _apiClient
-                  //     .existeEmpleado(_dniController.text.toString() ?? '');
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTextField(
+                controller: _emailController,
+                labelText: 'Email',
+                onTap: _depas,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _passwordController,
+                labelText: 'Contraseña',
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _nombreController,
+                labelText: 'Nombre',
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _apellidoController,
+                labelText: 'Apellido',
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _dniController,
+                labelText: 'DNI',
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Departamento',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18, // Tamaño de fuente deseado
+                ),
+              ),
+              DropdownButton<String>(
+                value: _selectedValueDepa,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedValueDepa = newValue!;
+                  });
+                },
+                items: depas.map<DropdownMenuItem<String>>((String value2) {
+                  return DropdownMenuItem<String>(
+                    value: value2,
+                    child: Text(value2),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _register,
+                child: const Text('Registrarse'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue, // foreground
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                  _register
-
-              // else if (empleadoExists.length == 0) {
-              //   Future.delayed(const Duration(seconds: 2), () {
-              //     // Mostrar notificación de error al usuario
-              //     _showErrorNotification(context, 'El empleado no existe');
-              //   });
-              // } else if (empleadoExists.length != 0) {
-              //   print(empleadoExists);
-
-              //}
-              ,
-              child: const Text('Registrarse'),
-            ),
-          ],
-        )),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    bool obscureText = false,
+    VoidCallback? onTap,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      onTap: onTap,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(),
       ),
     );
   }
@@ -172,7 +169,7 @@ class RegisterFormState extends State<Registerpage> {
     final String nombre = _nombreController.text;
     final String apellido = _apellidoController.text;
     final String dni = _dniController.text;
-    final String rol = _selectedValueRol.toString(); // _rolController.text;
+    final String rol = 'ADMIN'; // _rolController.text;
     final String idDepartamento = _selectedValueDepa
         .toString()
         .split(' ')[0]; //_idDepartamentoController.text;
