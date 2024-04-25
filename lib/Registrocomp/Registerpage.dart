@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/Logincomp/Login.dart';
 import 'package:flutter_application/main.dart';
 import 'ApiClient.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -29,7 +32,7 @@ void _showErrorNotification(BuildContext context, String message) {
 }
 
 class Registerpage extends StatefulWidget {
-  const Registerpage({Key? key}) : super(key: key);
+  const Registerpage({super.key});
 
   @override
   RegisterFormState createState() => RegisterFormState();
@@ -50,20 +53,26 @@ class RegisterFormState extends State<Registerpage> {
   List<String> depas = ['Departmentos', 'Otros'];
 
   void _depas() async {
-    final List<String> depasexits = await _apiClient.departamentos();
+    final List<String>? depasexits = await _apiClient.departamentos();
 
-    setState(() {
-      depas = depasexits;
-      _selectedValueDepa = depas[0];
-    });
-    print('$depas');
+    if (depasexits != null && depasexits.isNotEmpty) {
+      setState(() {
+        depas = depasexits;
+        _selectedValueDepa = depas[0];
+      });
+      print('$depas');
+    } else {
+      // Maneja el caso en que la lista de departamentos esté vacía o nula
+      print('La lista de departamentos está vacía o nula');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro'),
+        backgroundColor: Colors.blue,
+        title: const Text('Registro'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -101,25 +110,10 @@ class RegisterFormState extends State<Registerpage> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Rol',
+              'ADMIN',
               textAlign: TextAlign.left,
             ),
-            DropdownButton<String>(
-              value: _selectedValueRol,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedValueRol = newValue!;
-                });
-              },
-              items: <String>['ADMIN', 'USER']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            Text(
+            const Text(
               'Departamentos',
               textAlign: TextAlign.left,
             ),
@@ -232,7 +226,7 @@ class RegisterFormState extends State<Registerpage> {
       // Envía los datos al servidor utilizando un formato adecuado
       final String exists = await _apiClient
           .existeEmpleado(_dniController.text.replaceAll(RegExp(r'^0+'), ''));
-      if (exists.length == 0) {
+      if (exists.isEmpty) {
         Future.delayed(const Duration(seconds: 2), () {
           // Mostrar notificación de error al usuario
           _showErrorNotification(context, 'No existe ese empleado con ese dni');
@@ -283,5 +277,5 @@ class RegisterFormState extends State<Registerpage> {
 }
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
