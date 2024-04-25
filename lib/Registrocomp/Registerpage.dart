@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
 
 void _showErrorNotification(BuildContext context, String message) {
   // Implementa la lógica para mostrar una notificación al usuario
-  // Puedes usar paquetes como `fluttertoast` o `snackbar` para mostrar la notificación
-  // Aquí un ejemplo con `fluttertoast`:
+  // Puedes usar paquetes como fluttertoast o snackbar para mostrar la notificación
+  // Aquí un ejemplo con fluttertoast:
 
   Fluttertoast.showToast(
     msg: message,
@@ -71,102 +71,13 @@ class RegisterFormState extends State<Registerpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-<<<<<<< HEAD
-        title: const Text('Registro'),
-=======
         backgroundColor: Colors.blue,
         title: const Text('Registro'),
         centerTitle: true,
->>>>>>> 56b202c6753b888159418aee2dee4a4c1d1a493c
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
-<<<<<<< HEAD
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextFormField(
-              onTap: () {
-                _depas();
-              },
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _apellidoController,
-              decoration: const InputDecoration(labelText: 'Apellido'),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _dniController,
-              decoration: const InputDecoration(labelText: 'DNI'),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Rol',
-              textAlign: TextAlign.left,
-            ),
-            DropdownButton<String>(
-              value: _selectedValueRol,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedValueRol = newValue!;
-                });
-              },
-              items: <String>['ADMIN', 'USER']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            const Text(
-              'Departamentos',
-              textAlign: TextAlign.left,
-            ),
-            DropdownButton<String>(
-              value: _selectedValueDepa,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedValueDepa = newValue!;
-                });
-              },
-              items: depas.map<DropdownMenuItem<String>>((String value2) {
-                return DropdownMenuItem<String>(
-                  value: value2,
-                  child: Text(value2),
-                );
-              }).toList(),
-            ),
-            // TextFormField(
-            //   controller: _rolController,
-            //   decoration: const InputDecoration(labelText: 'Rol'),
-            // ),
-            // const SizedBox(height: 20),
-            // TextFormField(
-            //   controller: _idDepartamentoController,
-            //   decoration: const InputDecoration(labelText: 'ID Departamento'),
-            // ),
-            // const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed:
-                  // final String empleadoExists = await _apiClient
-                  //     .existeEmpleado(_dniController.text.toString() ?? '');
-=======
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -234,7 +145,6 @@ class RegisterFormState extends State<Registerpage> {
       ),
     );
   }
->>>>>>> 56b202c6753b888159418aee2dee4a4c1d1a493c
 
   Widget _buildTextField({
     required TextEditingController controller,
