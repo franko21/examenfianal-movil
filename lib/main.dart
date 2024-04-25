@@ -186,7 +186,7 @@ class _LoginFormState extends State<LoginForm> {
     try {
       final String loginSuccessful =
           await _apiClient.signinUser(username, password, role);
-      if (loginSuccessful.length != 0) {
+      if (loginSuccessful.isNotEmpty) {
         if (loginSuccessful.toString().split(' ')[0] == 'ADMIN') {
           Future.delayed(const Duration(seconds: 2), () {
             setState(() {
@@ -194,12 +194,8 @@ class _LoginFormState extends State<LoginForm> {
             });
             // Placeholder for login logic
             print('Login successful');
-            nombreU = loginSuccessful.toString().split(' ')[1] +
-                ' ' +
-                loginSuccessful.toString().split(' ')[2];
-            nombreU = loginSuccessful.toString().split(' ')[1] +
-                ' ' +
-                loginSuccessful.toString().split(' ')[2];
+            nombreU = '${loginSuccessful.toString().split(' ')[1]} ${loginSuccessful.toString().split(' ')[2]}';
+            nombreU = '${loginSuccessful.toString().split(' ')[1]} ${loginSuccessful.toString().split(' ')[2]}';
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => const WelcomeAdminScreen(),
@@ -210,9 +206,7 @@ class _LoginFormState extends State<LoginForm> {
           Future.delayed(const Duration(seconds: 2), () {
             // Placeholder for login logic
             print('Login successful, Empleado $loginSuccessful.toString()');
-            nombreU = loginSuccessful.toString().split(' ')[1] +
-                ' ' +
-                loginSuccessful.toString().split(' ')[2];
+            nombreU = '${loginSuccessful.toString().split(' ')[1]} ${loginSuccessful.toString().split(' ')[2]}';
             dniU = loginSuccessful.toString().split(' ')[3];
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -264,7 +258,7 @@ class WelcomeScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text('Bienvenido $nombreU'),
         ),
-        body: MyHomePage() //const Center(
+        body: const MyHomePage() //const Center(
         //   child: Column(
         //     mainAxisAlignment: MainAxisAlignment.center,
         //     children: [
@@ -282,6 +276,8 @@ class WelcomeScreen extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -290,19 +286,19 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime? _selectedDate;
   DateTime? _selectedDate2;
 
-  void _dataTableOn(DateTime? _selectedDate, DateTime? _selectedDate2) async {
-    final List<String> _dataListE = await _apiClient.dataTableET(
-      '${_selectedDate.toString().split(' ')[0]}T00:00:00',
-      '${_selectedDate2.toString().split(' ')[0]}T23:59:59',
+  void _dataTableOn(DateTime? selectedDate, DateTime? selectedDate2) async {
+    final List<String> dataListE = await _apiClient.dataTableET(
+      '${selectedDate.toString().split(' ')[0]}T00:00:00',
+      '${selectedDate2.toString().split(' ')[0]}T23:59:59',
       dniU,
     );
 
     setState(() {
       // Actualiza _dataListU con los nuevos datos
-      _dataListU = _dataListE;
+      _dataListU = dataListE;
     });
 
-    if (_dataListU.length == 0) {
+    if (_dataListU.isEmpty) {
       Future.delayed(const Duration(seconds: 2), () {
         // Mostrar notificación de error al usuario
         _showErrorNotification(context, 'No se encontraron datos', 1);
@@ -348,10 +344,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Marcaciones Empleado'),
+        title: const Text('Marcaciones Empleado'),
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
               _dataListU = [];
               dniU = '';
@@ -381,14 +377,14 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               ElevatedButton(
                 onPressed: _presentDatePicker,
-                child: Text('Fecha Inicio'),
+                child: const Text('Fecha Inicio'),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: _presentDatePicker2,
-                child: Text('Fecha Fin'),
+                child: const Text('Fecha Fin'),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: () {
                   // Lógica para realizar la búsqueda
@@ -418,23 +414,23 @@ class _MyHomePageState extends State<MyHomePage> {
                     print('Búsqueda realizada para fecha $_selectedDate');
                   }
                 },
-                child: Text('Buscar'),
+                child: const Text('Buscar'),
               ),
             ],
           ),
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Text(
               _selectedDate != null
                   ? 'Inicio: ${_selectedDate.toString().split(' ')[0]}- Fin:${_selectedDate2.toString().split(' ')[0]}'
                   : 'Ninguna fecha seleccionada',
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
           ),
           SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                columns: [
+                columns: const [
                   DataColumn(label: Text('Cedula')),
                   DataColumn(label: Text('Colaborador')),
                   DataColumn(label: Text('Fecha')),
@@ -451,7 +447,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     DataCell(Text(data.split(',')[4].split(' ')[0])),
                     DataCell(Text(data.split(',')[4].split(' ')[1])),
                     DataCell(Text(
-                        data.split(',')[5] != null ? data.split(',')[5] : '')),
+                        data.split(',')[5] ?? '')),
                     DataCell(Text(data.split(',')[6])),
                     DataCell(Text(data.split(',')[7])),
                     DataCell(Text(data.split(',')[8])),
@@ -473,7 +469,7 @@ class WelcomeAdminScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text('Bienvenido $nombreU'),
         ),
-        body: MyHomeAdminPage() //const Center(
+        body: const MyHomeAdminPage() //const Center(
         //   child: Column(
         //     mainAxisAlignment: MainAxisAlignment.center,
         //     children: [
@@ -491,6 +487,8 @@ class WelcomeAdminScreen extends StatelessWidget {
 }
 
 class MyHomeAdminPage extends StatefulWidget {
+  const MyHomeAdminPage({super.key});
+
   @override
   _MyHomeAdminPageState createState() => _MyHomeAdminPageState();
 }
@@ -500,18 +498,18 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
   DateTime? _selectedDate2;
   String searchText = '';
 
-  void _dataTableOn(DateTime? _selectedDate, DateTime? _selectedDate2) async {
-    final List<String> _dataListE = await _apiClient.dataTableET(
-      '${_selectedDate.toString().split(' ')[0]}T00:00:00',
-      '${_selectedDate2.toString().split(' ')[0]}T23:59:59',
+  void _dataTableOn(DateTime? selectedDate, DateTime? selectedDate2) async {
+    final List<String> dataListE = await _apiClient.dataTableET(
+      '${selectedDate.toString().split(' ')[0]}T00:00:00',
+      '${selectedDate2.toString().split(' ')[0]}T23:59:59',
       searchText,
     );
     setState(() {
       // Actualiza _dataListU con los nuevos datos
-      _dataListU = _dataListE;
+      _dataListU = dataListE;
     });
 
-    if (_dataListU.length == 0) {
+    if (_dataListU.isEmpty) {
       Future.delayed(const Duration(seconds: 2), () {
         // Mostrar notificación de error al usuario
         _showErrorNotification(context, 'No se encontraron datos', 1);
@@ -557,17 +555,17 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Marcaciones Talento Humano'),
+        title: const Text('Marcaciones Talento Humano'),
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
               _dataListU = [];
               dniU = '';
               // Lógica para cerrar sesión
               // Por ejemplo, llamar a una función que maneje el cierre de sesión
               Future.delayed(const Duration(seconds: 2), () {
-                Navigator?.of(context).pushReplacement(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const LoginPage(),
                   ),
@@ -590,31 +588,31 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
                       searchText = value;
                     });
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Cedula empleado...',
                   ),
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: _presentDatePicker,
-                child: Text('Fecha Inicio'),
+                child: const Text('Fecha Inicio'),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               ElevatedButton(
                 onPressed: _presentDatePicker2,
-                child: Text('Fecha Fin'),
+                child: const Text('Fecha Fin'),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
             ],
           ),
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Text(
               _selectedDate != null
                   ? 'Inicio: ${_selectedDate.toString().split(' ')[0]}- Fin:${_selectedDate2.toString().split(' ')[0]}'
                   : 'Ninguna fecha seleccionada',
-              style: TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18),
             ),
           ),
           ElevatedButton(
@@ -651,12 +649,12 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
                 print('Búsqueda realizada para fecha $_selectedDate');
               }
             },
-            child: Text('Buscar'),
+            child: const Text('Buscar'),
           ),
           SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                columns: [
+                columns: const [
                   DataColumn(label: Text('Cedula')),
                   DataColumn(label: Text('Colaborador')),
                   DataColumn(label: Text('Fecha')),
@@ -673,7 +671,7 @@ class _MyHomeAdminPageState extends State<MyHomeAdminPage> {
                     DataCell(Text(data.split(',')[4].split(' ')[0])),
                     DataCell(Text(data.split(',')[4].split(' ')[1])),
                     DataCell(Text(
-                        data.split(',')[5] != null ? data.split(',')[5] : '')),
+                        data.split(',')[5] ?? '')),
                     DataCell(Text(data.split(',')[6])),
                     DataCell(Text(data.split(',')[7])),
                     DataCell(Text(data.split(',')[8])),

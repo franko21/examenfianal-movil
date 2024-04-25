@@ -4,6 +4,8 @@ import 'ApiClient.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -29,7 +31,7 @@ void _showErrorNotification(BuildContext context, String message) {
 }
 
 class Registerpage extends StatefulWidget {
-  const Registerpage({Key? key}) : super(key: key);
+  const Registerpage({super.key});
 
   @override
   RegisterFormState createState() => RegisterFormState();
@@ -63,7 +65,7 @@ class RegisterFormState extends State<Registerpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro'),
+        title: const Text('Registro'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -100,7 +102,7 @@ class RegisterFormState extends State<Registerpage> {
               decoration: const InputDecoration(labelText: 'DNI'),
             ),
             const SizedBox(height: 20),
-            Text(
+            const Text(
               'Rol',
               textAlign: TextAlign.left,
             ),
@@ -119,7 +121,7 @@ class RegisterFormState extends State<Registerpage> {
                 );
               }).toList(),
             ),
-            Text(
+            const Text(
               'Departamentos',
               textAlign: TextAlign.left,
             ),
@@ -232,7 +234,7 @@ class RegisterFormState extends State<Registerpage> {
       // Envía los datos al servidor utilizando un formato adecuado
       final String exists = await _apiClient
           .existeEmpleado(_dniController.text.replaceAll(RegExp(r'^0+'), ''));
-      if (exists.length == 0) {
+      if (exists.isEmpty) {
         Future.delayed(const Duration(seconds: 2), () {
           // Mostrar notificación de error al usuario
           _showErrorNotification(context, 'No existe ese empleado con ese dni');
@@ -283,5 +285,5 @@ class RegisterFormState extends State<Registerpage> {
 }
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }

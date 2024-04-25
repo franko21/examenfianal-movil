@@ -34,9 +34,9 @@ class ApiClient {
       if (response.statusCode == 200) {
         // Registro exitoso
         final List<dynamic> stringList = json.decode(response.body);
-        List<String> _dataList2 =
+        List<String> dataList2 =
             stringList.map((element) => element.toString()).toList();
-        if (_dataList2.length == 0) {
+        if (dataList2.isEmpty) {
           return '';
         } else {
           print('Empleado existe');
@@ -123,7 +123,7 @@ class ApiClient {
   }
 
   Future<List<String>> dataTableE(String fechaI, String fechaF) async {
-    List<String> _dataList2;
+    List<String> dataList2;
     try {
       final response = await http.get(
         Uri.parse('$baseUrl2/$fechaI/$fechaF'),
@@ -131,80 +131,77 @@ class ApiClient {
 
       if (response.statusCode == 200) {
         final List<dynamic> stringList = json.decode(response.body);
-        List<String> _dataList2 =
+        List<String> dataList2 =
             stringList.map((element) => element.toString()).toList();
         print('Exito -> $baseUrl2/$fechaI/$fechaF');
         // String a = _dataList2.toString();
         // print('$_dataList2');
-        return _dataList2;
+        return dataList2;
       } else {
         print('Error al obtener datos desde la API: ${response.statusCode}');
         print('$baseUrl2/$fechaI/$fechaF');
-        return _dataList2 = [];
-        ;
+        return dataList2 = [];
       }
     } catch (e) {
       // Manejar errores de conexión
       print('Error de conexión: $e');
-      return _dataList2 = [];
+      return dataList2 = [];
     }
   }
 
   Future<List<String>> dataTableET(
-      String fechaI, String fechaF, String emp_code) async {
-    List<String> _dataList2;
-    String emp_codee = emp_code.replaceAll(RegExp(r'^0+'), '');
+      String fechaI, String fechaF, String empCode) async {
+    List<String> dataList2;
+    String empCodee = empCode.replaceAll(RegExp(r'^0+'), '');
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl2/$emp_codee/$fechaI/$fechaF'),
+        Uri.parse('$baseUrl2/$empCodee/$fechaI/$fechaF'),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> stringList = json.decode(response.body);
-        List<String> _dataList2 =
+        List<String> dataList2 =
             stringList.map((element) => element.toString()).toList();
-        print('Exito -> $baseUrl2/$emp_codee/$fechaI/$fechaF');
+        print('Exito -> $baseUrl2/$empCodee/$fechaI/$fechaF');
         // String a = _dataList2.toString();
         // print('$_dataList2');
-        return _dataList2;
+        return dataList2;
       } else {
         print('Error al obtener datos desde la API: ${response.statusCode}');
-        print('$baseUrl2/$emp_codee/$fechaI/$fechaF');
-        return _dataList2 = [];
-        ;
+        print('$baseUrl2/$empCodee/$fechaI/$fechaF');
+        return dataList2 = [];
       }
     } catch (e) {
       // Manejar errores de conexión
       print('Error de conexión: $e');
-      return _dataList2 = [];
+      return dataList2 = [];
     }
   }
 
   Future<List<String>> departamentos() async {
-    List<String> _dataList2;
+    List<String> dataList2;
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl4'),
+        Uri.parse(baseUrl4),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> stringList = json.decode(response.body);
-        List<String> _dataList2 =
+        List<String> dataList2 =
             stringList.map((element) => element.toString()).toList();
         print('Exito -> $baseUrl4');
         // String a = _dataList2.toString();
         // print('$_dataList2');
-        return _dataList2;
+        return dataList2;
       } else {
         print('Error al obtener datos desde la API: ${response.statusCode}');
-        print('$baseUrl4');
-        return _dataList2 = [];
-        ;
+        print(baseUrl4);
+        return dataList2 = [];
       }
     } catch (e) {
       // Manejar errores de conexión
       print('Error de conexión: $e');
-      return _dataList2 = [];
+      return dataList2 = [];
     }
   }
 }
