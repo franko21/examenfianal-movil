@@ -68,7 +68,7 @@ class ApiClient {
           'nombre': nombre,
           'apellido': apellido,
           'dni': dni,
-          'role': rol,
+          'rol': rol,
           'idDepartamento': idDepartamento,
         }),
       );

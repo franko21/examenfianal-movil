@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/Logincomp/Login.dart';
 import 'package:flutter_application/main.dart';
 import 'ApiClient.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -48,28 +49,40 @@ class RegisterFormState extends State<Registerpage> {
       TextEditingController();
   final ApiClient _apiClient = ApiClient();
   String _selectedValueRol = 'ADMIN';
-  String _selectedValueDepa = 'Departmentos';
-  List<String> depas = ['Departmentos', 'Otros'];
+  String _selectedValueDepa = 'Seleccionar';
+  List<String> depas = ['Seleccionar', 'Departmentos', 'Otros'];
 
   void _depas() async {
-    final List<String> depasexits = await _apiClient.departamentos();
+    final List<String>? depasexits = await _apiClient.departamentos();
 
-    setState(() {
-      depas = depasexits;
-      _selectedValueDepa = depas[0];
-    });
-    print('$depas');
+    if (depasexits != null && depasexits.isNotEmpty) {
+      setState(() {
+        depas = depasexits;
+        _selectedValueDepa = depas[0];
+      });
+      print('$depas');
+    } else {
+      // Maneja el caso en que la lista de departamentos esté vacía o nula
+      print('La lista de departamentos está vacía o nula');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         title: const Text('Registro'),
+=======
+        backgroundColor: Colors.blue,
+        title: const Text('Registro'),
+        centerTitle: true,
+>>>>>>> 56b202c6753b888159418aee2dee4a4c1d1a493c
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
+<<<<<<< HEAD
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -153,23 +166,89 @@ class RegisterFormState extends State<Registerpage> {
               onPressed:
                   // final String empleadoExists = await _apiClient
                   //     .existeEmpleado(_dniController.text.toString() ?? '');
+=======
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTextField(
+                controller: _emailController,
+                labelText: 'Email',
+                onTap: _depas,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _passwordController,
+                labelText: 'Contraseña',
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _nombreController,
+                labelText: 'Nombre',
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _apellidoController,
+                labelText: 'Apellido',
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _dniController,
+                labelText: 'DNI',
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Departamento',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18, // Tamaño de fuente deseado
+                ),
+              ),
+              DropdownButton<String>(
+                value: _selectedValueDepa,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedValueDepa = newValue!;
+                  });
+                },
+                items: depas.map<DropdownMenuItem<String>>((String value2) {
+                  return DropdownMenuItem<String>(
+                    value: value2,
+                    child: Text(value2),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _register,
+                child: const Text('Registrarse'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue, // foreground
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+>>>>>>> 56b202c6753b888159418aee2dee4a4c1d1a493c
 
-                  _register
-
-              // else if (empleadoExists.length == 0) {
-              //   Future.delayed(const Duration(seconds: 2), () {
-              //     // Mostrar notificación de error al usuario
-              //     _showErrorNotification(context, 'El empleado no existe');
-              //   });
-              // } else if (empleadoExists.length != 0) {
-              //   print(empleadoExists);
-
-              //}
-              ,
-              child: const Text('Registrarse'),
-            ),
-          ],
-        )),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    bool obscureText = false,
+    VoidCallback? onTap,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      onTap: onTap,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(),
       ),
     );
   }
@@ -180,7 +259,7 @@ class RegisterFormState extends State<Registerpage> {
     final String nombre = _nombreController.text;
     final String apellido = _apellidoController.text;
     final String dni = _dniController.text;
-    final String rol = _selectedValueRol.toString(); // _rolController.text;
+    final String rol = 'ADMIN'; // _rolController.text;
     final String idDepartamento = _selectedValueDepa
         .toString()
         .split(' ')[0]; //_idDepartamentoController.text;
