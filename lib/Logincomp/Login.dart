@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/Notificacionescomp/notificaciones.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
+import 'package:flutter_application/TablaIngresocomp/MyAdminWelcome.dart';
 import 'package:flutter_application/TablaIngresocomp/MyhomePageState.dart';
 
 class LoginPage extends StatelessWidget {
@@ -174,7 +175,7 @@ class _LoginFormState extends State<LoginForm> {
             print('Login successful');
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => const WelcomeScreen(),
+                builder: (context) => const WelcomeAdminScreen(),
               ),
             );
           });
