@@ -44,11 +44,12 @@ class RegisterFormState extends State<Registerpage> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _apellidoController = TextEditingController();
   final TextEditingController _dniController = TextEditingController();
-  final TextEditingController _rolController = TextEditingController();
+  final TextEditingController _rolController =
+      TextEditingController(text: 'USER');
   final TextEditingController _idDepartamentoController =
       TextEditingController();
   final ApiClient _apiClient = ApiClient();
-  String _selectedValueRol = 'ADMIN';
+  String _selectedValueRol = 'USER';
   String _selectedValueDepa = 'Seleccionar';
   List<String> depas = ['Seleccionar', 'Departmentos', 'Otros'];
 
@@ -169,7 +170,7 @@ class RegisterFormState extends State<Registerpage> {
     final String nombre = _nombreController.text;
     final String apellido = _apellidoController.text;
     final String dni = _dniController.text;
-    final String rol = 'ADMIN'; // _rolController.text;
+    final String role = _rolController.text;
     final String idDepartamento = _selectedValueDepa
         .toString()
         .split(' ')[0]; //_idDepartamentoController.text;
@@ -204,7 +205,7 @@ class RegisterFormState extends State<Registerpage> {
         _showErrorNotification(context, 'Debe de ingresar su cedula');
       });
       return;
-    } else if (rol.isEmpty) {
+    } else if (role.isEmpty) {
       Future.delayed(const Duration(seconds: 2), () {
         // Mostrar notificación de error al usuario
         _showErrorNotification(context, 'Debe de ingresar su rol');

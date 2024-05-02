@@ -55,8 +55,17 @@ class ApiClient {
   }
 
   Future<bool> registerUser(String email, String password, String nombre,
-      String apellido, String dni, String rol, String idDepartamento) async {
+      String apellido, String dni, String role, String idDepartamento) async {
     try {
+      print('Datos enviados en la solicitud:');
+      print('Email: $email');
+      print('Password: $password');
+      print('Nombre: $nombre');
+      print('Apellido: $apellido');
+      print('DNI: $dni');
+      print('Rol: $role');
+      print('ID Departamento: $idDepartamento');
+
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: <String, String>{
@@ -68,7 +77,7 @@ class ApiClient {
           'nombre': nombre,
           'apellido': apellido,
           'dni': dni,
-          'rol': rol,
+          'role': role, // Utiliza el rol pasado como parámetro
           'idDepartamento': idDepartamento,
         }),
       );
