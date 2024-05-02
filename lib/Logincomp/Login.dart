@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application/Notificacionescomp/notificaciones.dart';
+import 'package:flutter_application/Recuperar_contrase%C3%B1acomp/verificaioncorreo.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
 import 'package:flutter_application/TablaIngresocomp/MyAdminWelcome.dart';
@@ -145,7 +146,10 @@ class _LoginFormState extends State<LoginForm> {
         SizedBox(height: 10),
         TextButton(
           onPressed: () {
-            // Lógica para recuperar contraseña
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CambioContraseniaPage()),
+            );
           },
           child: Text('Recuperar contraseña'),
         ),
