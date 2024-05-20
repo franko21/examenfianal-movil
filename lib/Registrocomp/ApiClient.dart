@@ -25,6 +25,7 @@ class ApiClient {
       'http://10.0.2.2:8080/api/personnelE/iclockT/fecha/v2';
   static const String baseUrl3 = 'http://10.0.2.2:8080/api/userinfo/v2';
   static const String baseUrl4 = 'http://10.0.2.2:8080/departamentos/v2';
+  static const String baseUrl5 = 'http://10.0.2.2:8080/odo';
 
   Future<String> existeEmpleado(String cedula) async {
     try {
@@ -128,6 +129,87 @@ class ApiClient {
       // Manejar errores de conexión
       print('Error de conexión: $e');
       return '';
+    }
+  }
+
+  Future<List<String>> dataTableVent() async {
+    List<String> dataList2;
+    List<String> dataList3;
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl5/datosoVentas'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        List<String> dataList = responseData.map((item) {
+          return '${item['id']}, '
+              '${item['product_template_id'][1]}, '
+              '${item['name']}, '
+              '${item['product_uom_qty']}, '
+              '${item['qty_delivered']}, '
+              '${item['qty_invoiced']}, '
+              '${item['product_uom'][1]}, '
+              '${item['price_unit']}, '
+              '${item['tax_id'].isEmpty ? 'None' : item['tax_id'].join(', ')}, '
+              '${item['discount']}, '
+              '${item['price_subtotal']}';
+        }).toList();
+        // Aquí asumo que los valores del mapa son cadenas
+        dataList2 = responseData.map((value) => value.toString()).toList();
+
+        print('Exito -> $baseUrl5/datosoVentas');
+        return dataList;
+      } else {
+        print('Error al obtener datos desde la API: ${response.statusCode}');
+        print('$baseUrl2/datosoVentas');
+        return [];
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> dataTableFac() async {
+    List<String> dataList2;
+    List<String> dataList3;
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl5/datosoFacturas'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        List<String> dataList = responseData
+            .where((item) => item['type_name'] == 'Factura')
+            .map((item) {
+          return '${item['id']}-- '
+              '${item['name']}-- '
+              '${item['invoice_partner_display_name']}-- '
+              '${item['invoice_date']}-- '
+              '${item['invoice_date_due']}-- '
+              '${item['amount_total']}-- '
+              '${item['payment_state']}-- '
+              '${item['invoice_payment_term_id'] is List ? item['invoice_payment_term_id'][1] : 'N/A'}';
+        }).toList();
+        // Aquí asumo que los valores del mapa son cadenas
+        dataList2 = responseData.map((value) => value.toString()).toList();
+
+        print('Exito -> $baseUrl5/datosoFacturas');
+        return dataList;
+      } else {
+        print('Error al obtener datos desde la API: ${response.statusCode}');
+        print('$baseUrl2/datosoFacturas');
+        return [];
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return [];
     }
   }
 

@@ -5,8 +5,10 @@ import 'package:flutter_application/Notificacionescomp/notificaciones.dart';
 import 'package:flutter_application/Recuperar_contrase%C3%B1acomp/verificaioncorreo.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/Registrocomp/Registerpage.dart';
+import 'package:flutter_application/TablaIngresocomp/Facturas.dart';
 import 'package:flutter_application/TablaIngresocomp/MyAdminWelcome.dart';
 import 'package:flutter_application/TablaIngresocomp/MyhomePageState.dart';
+import 'package:flutter_application/TablaIngresocomp/Ventas.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key});
@@ -179,7 +181,7 @@ class _LoginFormState extends State<LoginForm> {
             print('Login successful');
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => const WelcomeAdminScreen(),
+                builder: (context) => const FacturaScreen(),
               ),
             );
           });
