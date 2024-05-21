@@ -68,33 +68,6 @@ class EmailService {
     }
   }
 
-  Future<bool> existeUsuario(String email) async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/auth/existe/$email'));
-      final bool exists = jsonDecode(response.body);
-      print(
-          'Solicitud de verificación de existencia de usuario enviada: $email');
-      print('Respuesta recibida: $exists');
-      return exists;
-    } on SocketException catch (e) {
-      // Manejo específico de SocketException
-      print('Error de conexión: $e');
-      throw Exception('Error de conexión: $e');
-    } on HttpException catch (e) {
-      // Manejo específico de HttpException
-      print('Error HTTP: $e');
-      throw Exception('Error HTTP: $e');
-    } on FormatException catch (e) {
-      // Manejo específico de FormatException (JSON mal formado)
-      print('JSON mal formado: $e');
-      throw Exception('JSON mal formado: $e');
-    } catch (e) {
-      // Manejo genérico de otros errores
-      print('Error al verificar la existencia del usuario: $e');
-      throw Exception('Error al verificar la existencia del usuario: $e');
-    }
-  }
-
   Future<Map<String, dynamic>> findByUsername(String username) async {
     try {
       final response =
