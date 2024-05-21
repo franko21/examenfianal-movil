@@ -8,6 +8,8 @@ class CambioContraseniaPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final emailService = EmailService();
 
+  CambioContraseniaPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,14 +64,18 @@ class CambioContraseniaPage extends StatelessWidget {
       final bool exists = await emailService.existeUsuario(email);
       print('casi: $exists');
       if (exists) {
-        final response = await emailService.sendRecuperacionPassword(email);
+        final response =
+            await emailService.sendRecuperacionPasswordByEmail(email);
         print(response);
-        // Agrega aquí la lógica para mostrar el mensaje de éxito o manejar errores
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => contrasena2()),
         );
       } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => contrasena2()),
+        );
         // Muestra una notificación al usuario si el correo no existe
         _showErrorNotification(context, 'El correo electrónico no existe');
       }

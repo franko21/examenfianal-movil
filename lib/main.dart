@@ -1,5 +1,3 @@
-// Archivo main.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application/Logincomp/Login.dart';
 
@@ -47,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.warehouse, size: 100),
+            Icon(Icons.build, size: 100, color: Colors.orange),
             SizedBox(height: 20),
             Text(
               'Bienvenido Ecuaminerals',
