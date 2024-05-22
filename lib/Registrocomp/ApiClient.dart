@@ -173,6 +173,76 @@ class ApiClient {
     }
   }
 
+  Future<List<String>> dataTablePagos(String fac) async {
+    List<String> dataList2;
+    List<String> dataList3;
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl5/datosoPagos/$fac'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        List<String> dataList = responseData.map((item) {
+          return '${item['name']}, '
+              '${item['ref']}, '
+              '${item['partner_id'][1]}, '
+              '${item['date']}, '
+              '${item['amount']}';
+        }).toList();
+        // Aquí asumo que los valores del mapa son cadenas
+        dataList2 = responseData.map((value) => value.toString()).toList();
+
+        print('Exito -> $baseUrl5/datosoPagos/$fac');
+        return dataList;
+      } else {
+        print('Error al obtener datos desde la API: ${response.statusCode}');
+        print('$baseUrl2/datosoPagos/$fac');
+        return [];
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> dataTablePlazo(String id) async {
+    List<String> dataList2;
+    List<String> dataList3;
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl5/datosoPlazoPago/$id'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = json.decode(response.body);
+
+        List<String> dataList = responseData.map((item) {
+          return '${item['value']}, '
+              '${item['days']}, '
+              '${item['months']}, '
+              '${item['discount_percentage']}, '
+              '${item['value_amount']}';
+        }).toList();
+        // Aquí asumo que los valores del mapa son cadenas
+        dataList2 = responseData.map((value) => value.toString()).toList();
+
+        print('Exito -> $baseUrl5/datosoPlazoPago/$id');
+        return dataList;
+      } else {
+        print('Error al obtener datos desde la API: ${response.statusCode}');
+        print('$baseUrl5/datosoPlazoPago/$id');
+        return [];
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return [];
+    }
+  }
+
   Future<List<String>> dataTableFac() async {
     List<String> dataList2;
     List<String> dataList3;
@@ -194,8 +264,15 @@ class ApiClient {
               '${item['invoice_date_due']}-- '
               '${item['amount_total']}-- '
               '${item['payment_state']}-- '
-              '${item['invoice_payment_term_id'] is List ? item['invoice_payment_term_id'][1] : 'N/A'}';
+              '${item['invoice_payment_term_id'] is List ? item['invoice_payment_term_id'][0] : 'N/A'}';
         }).toList();
+        dataList.sort((a, b) {
+          String nameA = a.split('--')[1]; // Obtener el nombre de 'a'
+          String nameB = b.split('--')[1]; // Obtener el nombre de 'b'
+
+          // Comparar los nombres y devolver el resultado
+          return nameA.compareTo(nameB);
+        });
         // Aquí asumo que los valores del mapa son cadenas
         dataList2 = responseData.map((value) => value.toString()).toList();
 

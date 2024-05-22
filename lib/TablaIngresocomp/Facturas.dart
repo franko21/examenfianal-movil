@@ -3,11 +3,14 @@ import 'package:flutter_application/Logincomp/Login.dart';
 import 'package:flutter_application/Notificacionescomp/notificaciones.dart';
 import 'package:flutter_application/Registrocomp/ApiClient.dart';
 import 'package:flutter_application/TablaIngresocomp/MyhomePageState.dart';
+import 'package:intl/intl.dart';
 
 // Variables globales
 String nombreU = '';
 String dniU = '';
 List<String> _dataListU = [];
+List<String> _dataListP = [];
+List<String> _dataListC = [];
 final ApiClient _apiClient = ApiClient();
 
 class FacturaScreen extends StatelessWidget {
@@ -58,7 +61,7 @@ class _FacturaState extends State<FacturaPage> {
   DateTime? _selectedDate2;
   String searchText = '';
 
-  void _dataTableOn(DateTime? _selectedDate, DateTime? _selectedDate2) async {
+  void _dataTableOn() async {
     final List<String> _dataListE = await _apiClient.dataTableFac();
     setState(() {
       // Actualiza _dataListU con los nuevos datos
@@ -74,6 +77,12 @@ class _FacturaState extends State<FacturaPage> {
     // String d = _dataListU;
     print('$_dataListU');
     // print('$d');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _dataTableOn();
   }
 
   void _presentDatePicker() {
@@ -116,75 +125,9 @@ class _FacturaState extends State<FacturaPage> {
         ),
         body: SingleChildScrollView(
           child: Column(children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        searchText = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Cedula empleado...',
-                    ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: _presentDatePicker,
-                  child: Text('Fecha Inicio'),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: _presentDatePicker2,
-                  child: Text('Fecha Fin'),
-                ),
-                SizedBox(width: 16),
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                _selectedDate != null
-                    ? 'Inicio: ${_selectedDate.toString().split(' ')[0]}- Fin:${_selectedDate2.toString().split(' ')[0]}'
-                    : 'Ninguna fecha seleccionada',
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
             ElevatedButton(
               onPressed: () {
-                // Lógica para realizar la búsqueda
-                // if (searchText.isEmpty) {
-                //   Future.delayed(const Duration(seconds: 2), () {
-                //     // Mostrar notificación de error al usuario
-                //     showErrorNotification(
-                //         context, 'Debe de ingresar la cedula del usuario', 0);
-                //   });
-                // } else if (_selectedDate == null) {
-                //   Future.delayed(const Duration(seconds: 2), () {
-                //     // Mostrar notificación de error al usuario
-                //     showErrorNotification(
-                //         context, 'Debe de seleccionar la fecha de inicio', 0);
-                //   });
-                // } else if (_selectedDate2 == null) {
-                //   Future.delayed(const Duration(seconds: 2), () {
-                //     // Mostrar notificación de error al usuario
-                //     showErrorNotification(
-                //         context, 'Debe de seleccionar la fecha fin', 0);
-                //   });
-                // } else if (_selectedDate2?.isBefore(_selectedDate!) ?? false) {
-                //   Future.delayed(const Duration(seconds: 2), () {
-                //     // Mostrar notificación de error al usuario
-                //     showErrorNotification(
-                //         context,
-                //         'La fecha de inicio debe ser igual o anterior a la fecha fin',
-                //         0);
-                //   });
-                // } else {
-                _dataTableOn(_selectedDate, _selectedDate2);
-                print('Búsqueda realizada para fecha $_selectedDate');
-                //}
+                _dataTableOn();
               },
               child: Text('Buscar'),
             ),
@@ -192,14 +135,14 @@ class _FacturaState extends State<FacturaPage> {
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: [
-                    DataColumn(label: Text('ID')),
+                    // DataColumn(label: Text('ID')),
                     DataColumn(label: Text('Numero')),
                     DataColumn(label: Text('Cliente')),
                     DataColumn(label: Text('Fecha Creada')),
                     DataColumn(label: Text('Fecha Vencimiento')),
                     DataColumn(label: Text('Total')),
                     DataColumn(label: Text('Estado')),
-                    DataColumn(label: Text('Plazo')),
+                    // DataColumn(label: Text('Plazo')),
                   ],
                   rows: _dataListU.asMap().entries.map((entry) {
                     int index = entry.key;
@@ -215,9 +158,14 @@ class _FacturaState extends State<FacturaPage> {
                           return Colors.transparent; // Use the default value.
                         },
                       ),
-                      cells: splitData
-                          .map((cell) => DataCell(Text(cell)))
-                          .toList(),
+                      cells: [
+                        DataCell(Text(splitData[1])), // Dias
+                        DataCell(Text(splitData[2])),
+                        DataCell(Text(splitData[3])),
+                        DataCell(Text(splitData[4])),
+                        DataCell(Text(splitData[5])),
+                        DataCell(Text(splitData[6])), // A pagar
+                      ],
                       onSelectChanged: (bool? selected) {
                         setState(() {
                           _selectedRowIndex = index;
@@ -226,7 +174,11 @@ class _FacturaState extends State<FacturaPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailPage(data: splitData),
+                              builder: (context) => DetailPage(
+                                  data: splitData,
+                                  plazo: splitData[7],
+                                  numero: splitData[1],
+                                  total: splitData[5]),
                             ),
                           );
                         });
@@ -239,21 +191,209 @@ class _FacturaState extends State<FacturaPage> {
   }
 }
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
+  final String plazo;
+  final String numero;
+  final String total;
   final List<String> data;
 
-  DetailPage({required this.data});
+  DetailPage(
+      {required this.data,
+      required this.plazo,
+      required this.numero,
+      required this.total});
+  @override
+  _DetailPageState createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  void _dataTableOnP() async {
+    final List<String> _dataListE =
+        await _apiClient.dataTablePagos(widget.numero.trim());
+    setState(() {
+      // Actualiza _dataListU con los nuevos datos
+      _dataListP = _dataListE;
+    });
+
+    if (_dataListP.length == 0) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        showErrorNotification(context, 'No se encontraron datos', 1);
+      });
+    }
+    // String d = _dataListU;
+    print('$_dataListP');
+    // print('$d');
+  }
+
+  void _dataTableOnC() async {
+    final List<String> _dataListE =
+        await _apiClient.dataTablePlazo(widget.plazo.trim());
+    setState(() {
+      // Actualiza _dataListU con los nuevos datos
+      _dataListC = _dataListE;
+    });
+    double totalAcumulado = 0.0;
+    if (_dataListC.length == 0) {
+      Future.delayed(const Duration(seconds: 2), () {
+        // Mostrar notificación de error al usuario
+        showErrorNotification(context, 'No se encontraron datos', 1);
+      });
+    } else {
+      List<String> sortedList =
+          List.from(_dataListC); // Copiamos la lista original para ordenarla
+      sortedList.sort((a, b) {
+        List<String> splitA = a.split(',');
+        List<String> splitB = b.split(',');
+        int numA = int.parse(splitA[1]);
+        int numB = int.parse(splitB[1]);
+        return numA.compareTo(numB); // Ordena de menor a mayor
+      });
+      sortedList = sortedList.map((data) {
+        NumberFormat formatter = NumberFormat("#.##");
+        List<String> splitData = data.split(',');
+        if (splitData[0] == 'balance') {
+          double totalAnterior = double.parse(widget.total) - totalAcumulado;
+          String tot = formatter.format(totalAnterior);
+          splitData.add(tot);
+        } else {
+          double resultado =
+              double.parse(widget.total) * (double.parse(splitData[4]) / 100);
+          totalAcumulado += resultado;
+          String res = formatter.format(resultado);
+          splitData.add(res);
+        }
+        // Realizar la multiplicación y convertir a String
+
+        return splitData.join(',');
+      }).toList();
+      sortedList = sortedList.map((data) {
+        List<String> splitData = data.split(',');
+        List<String> modifiedValues = splitData.map((value) {
+          if (value == 'balance') {
+            return 'Saldo';
+          } else if (value == 'percent') {
+            return 'Porcentaje';
+          } else {
+            return value;
+          }
+        }).toList();
+
+        return modifiedValues.join(',');
+      }).toList();
+
+      sortedList.forEach((data) {
+        print(data);
+      });
+      setState(() {
+        // Actualiza _dataListU con los nuevos datos
+        _dataListC = sortedList;
+      });
+    }
+    // String d = _dataListU;
+    print('$_dataListC');
+    // print('$d');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _dataTableOnP();
+    _dataTableOnC();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Page'),
+        title: Text('Detalles de la Factura'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: data.map((item) => Text(item)).toList(),
+          children: [
+            ...widget.data
+                .map((item) => Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      child: Text(
+                        item,
+                        style: TextStyle(
+                          fontSize: 18, // Tamaño de la fuente
+                          fontWeight: FontWeight.normal, // Peso de la fuente
+                          color: Colors.black87, // Color de la fuente
+                        ),
+                      ),
+                    ))
+                .toList(),
+            // ...widget.data.map((item) => Text(item)).toList(),
+            Text('\n\nPagos: ${widget.numero}'),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('Referencia')),
+                  DataColumn(label: Text('Partner')),
+                  DataColumn(label: Text('Fecha')),
+                  DataColumn(label: Text('Total')),
+                ],
+                rows: _dataListP.map((data) {
+                  List<String> splitData = data.split(',');
+                  if (splitData.length == 5) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(splitData[1])), // Dias
+                        DataCell(Text(splitData[2])),
+                        DataCell(Text(splitData[3])),
+                        DataCell(Text(splitData[4])), // A pagar
+                      ],
+                    );
+                  } else {
+                    // Retorna una fila vacía o maneja el error de acuerdo a tus necesidades
+                    return DataRow(
+                      cells: List<DataCell>.generate(
+                          7, (index) => DataCell(Text(''))),
+                    );
+                  }
+                  ;
+                }).toList(),
+              ),
+            ),
+            Text('\n\nCuotas: ${widget.numero}'),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('Tipo')),
+                  DataColumn(label: Text('Dias')),
+                  DataColumn(label: Text('Meses')),
+                  DataColumn(label: Text('Porcentaje')),
+                  DataColumn(label: Text('A pagar')),
+                ],
+                rows: _dataListC.map((data) {
+                  List<String> splitData = data.split(',');
+                  if (splitData.length == 6) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(splitData[0])),
+                        DataCell(Text(splitData[1])), // Dias
+                        DataCell(Text(splitData[2])),
+                        DataCell(Text(splitData[4] + '%')),
+                        DataCell(Text(splitData[5])), // A pagar
+                      ],
+                    );
+                  } else {
+                    // Retorna una fila vacía o maneja el error de acuerdo a tus necesidades
+                    return DataRow(
+                      cells: List<DataCell>.generate(
+                          7, (index) => DataCell(Text(''))),
+                    );
+                  }
+                  ;
+                }).toList(),
+              ),
+            ),
+          ],
         ),
       ),
     );
