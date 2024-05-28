@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Employee {
   final int? id;
@@ -211,6 +212,7 @@ class ApiClient {
   Future<List<String>> dataTablePlazo(String id) async {
     List<String> dataList2;
     List<String> dataList3;
+    double totalAcumulado = 0.0;
     try {
       final response = await http.get(
         Uri.parse('$baseUrl5/datosoPlazoPago/$id'),
@@ -226,6 +228,33 @@ class ApiClient {
               '${item['discount_percentage']}, '
               '${item['value_amount']}';
         }).toList();
+
+        dataList.sort((a, b) {
+          List<String> splitA = a.split(',');
+          List<String> splitB = b.split(',');
+          int numA = int.parse(splitA[1]);
+          int numB = int.parse(splitB[1]);
+          return numA.compareTo(numB); // Ordena de menor a mayor
+        });
+
+        dataList = dataList.map((data) {
+          List<String> splitData = data.split(',');
+          List<String> modifiedValues = splitData.map((value) {
+            if (value == 'balance') {
+              return 'Saldo';
+            } else if (value == 'percent') {
+              return 'Porcentaje';
+            } else {
+              return value;
+            }
+          }).toList();
+
+          return modifiedValues.join(',');
+        }).toList();
+
+        dataList.forEach((data) {
+          print(data);
+        });
         // Aquí asumo que los valores del mapa son cadenas
         dataList2 = responseData.map((value) => value.toString()).toList();
 
@@ -253,18 +282,29 @@ class ApiClient {
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = json.decode(response.body);
-
+        final DateFormat formatter = DateFormat('yyyy-MM-dd');
         List<String> dataList = responseData
             .where((item) => item['type_name'] == 'Factura')
             .map((item) {
+          // Convierte las fechas de tipo String a objetos DateTime
+          DateTime invoiceDateDue = formatter.parse(item['invoice_date_due']);
+
+          // Calcula la diferencia de días entre la fecha actual y invoice_date_due
+          DateTime now = DateTime.now();
+          int daysDifference = invoiceDateDue.difference(now).inDays;
+          daysDifference = daysDifference < 0 ? 0 : daysDifference;
+          String dueDate = daysDifference != 0
+              ? 'En ' + daysDifference.toString() + ' dias'
+              : 'Caducado';
           return '${item['id']}-- '
               '${item['name']}-- '
               '${item['invoice_partner_display_name']}-- '
               '${item['invoice_date']}-- '
-              '${item['invoice_date_due']}-- '
+              '${dueDate}-- '
               '${item['amount_total']}-- '
               '${item['payment_state']}-- '
-              '${item['invoice_payment_term_id'] is List ? item['invoice_payment_term_id'][0] : 'N/A'}';
+              '${item['invoice_payment_term_id'] is List ? item['invoice_payment_term_id'][0] : 'N/A'}-- '
+              '${item['amount_residual']}-- ';
         }).toList();
         dataList.sort((a, b) {
           String nameA = a.split('--')[1]; // Obtener el nombre de 'a'
@@ -273,6 +313,20 @@ class ApiClient {
           // Comparar los nombres y devolver el resultado
           return nameA.compareTo(nameB);
         });
+        dataList.map((data) {
+          List<String> splitData = data.split('--');
+          List<String> modifiedValues = splitData.map((value) {
+            if (value.trim() == 'not_paid') {
+              return 'No pagado';
+            } else if (value.trim() == 'paid') {
+              return 'Pagado';
+            } else {
+              return value;
+            }
+          }).toList();
+
+          return modifiedValues.join('--');
+        }).toList();
         // Aquí asumo que los valores del mapa son cadenas
         dataList2 = responseData.map((value) => value.toString()).toList();
 
