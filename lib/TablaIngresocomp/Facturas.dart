@@ -582,7 +582,7 @@ class _DetailPageState extends State<DetailPage> {
               ),
             ),
             Text(
-              '\n\nImporte adeudado: \n\$\ ${saldo}',
+              '\n\nImporte adeudado: \n\$\ ${saldo} \n\n',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22.0,

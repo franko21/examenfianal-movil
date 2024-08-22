@@ -162,7 +162,6 @@ class _LoginFormState extends State<LoginForm> {
   void _login(BuildContext context) async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
-    String role = '';
 
     setState(() {
       _isLoading = true;
@@ -170,36 +169,24 @@ class _LoginFormState extends State<LoginForm> {
 
     try {
       final String loginSuccessful =
-          await _apiClient.signinUser(username, password, role);
+          await _apiClient.signinUser(username, password);
+
       if (loginSuccessful.isNotEmpty) {
-        if (loginSuccessful.toString().split(' ')[0] == 'ADMIN') {
-          Future.delayed(const Duration(seconds: 2), () {
-            setState(() {
-              _isLoading = false;
-            });
-            // Placeholder for login logic
-            print('Login successful');
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const FacturaScreen(),
-                // builder: (context) => MyHomeAdminPage(),
-              ),
-            );
+        // Simula un retraso de 2 segundos antes de continuar
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {
+            _isLoading = false;
           });
-        } else {
-          Future.delayed(const Duration(seconds: 2), () {
-            // Placeholder for login logic
-            print('Login successful, Empleado $loginSuccessful.toString()');
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const WelcomeScreen(),
-              ),
-            );
-            setState(() {
-              _isLoading = false;
-            });
-          });
-        }
+
+          // Placeholder para la lógica de inicio de sesión
+          print('Login successful');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              // builder: (context) => const FacturaScreen(),
+              builder: (context) => MyHomeAdminPage(),
+            ),
+          );
+        });
       } else {
         // El inicio de sesión falló
         print('Inicio de sesión fallido');
@@ -209,10 +196,8 @@ class _LoginFormState extends State<LoginForm> {
             _isLoading = false;
           });
           // Mostrar notificación de error al usuario
-          showErrorNotification(
-              context,
-              'Inicio de sesión fallido, Revisa el usuario y la contrasenia',
-              0);
+          showErrorNotification(context,
+              'Inicio de sesión fallido, revisa el usuario y la contraseña', 0);
         });
       }
     } catch (e) {
@@ -224,4 +209,70 @@ class _LoginFormState extends State<LoginForm> {
       showErrorNotification(context, 'Error: $e', 0);
     }
   }
+
+  // void _login(BuildContext context) async {
+  //   final String username = _usernameController.text;
+  //   final String password = _passwordController.text;
+  //   String role = '';
+
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   try {
+  //     final String loginSuccessful =
+  //         await _apiClient.signinUser(username, password, role);
+  //     if (loginSuccessful.isNotEmpty) {
+  //       if (loginSuccessful.toString().split(' ')[0] == 'ADMIN') {
+  //         Future.delayed(const Duration(seconds: 2), () {
+  //           setState(() {
+  //             _isLoading = false;
+  //           });
+  //           // Placeholder for login logic
+  //           print('Login successful');
+  //           Navigator.of(context).pushReplacement(
+  //             MaterialPageRoute(
+  //               builder: (context) => const FacturaScreen(),
+  //               // builder: (context) => MyHomeAdminPage(),
+  //             ),
+  //           );
+  //         });
+  //       } else {
+  //         Future.delayed(const Duration(seconds: 2), () {
+  //           // Placeholder for login logic
+  //           print('Login successful, Empleado $loginSuccessful.toString()');
+  //           Navigator.of(context).pushReplacement(
+  //             MaterialPageRoute(
+  //               builder: (context) => const WelcomeScreen(),
+  //             ),
+  //           );
+  //           setState(() {
+  //             _isLoading = false;
+  //           });
+  //         });
+  //       }
+  //     } else {
+  //       // El inicio de sesión falló
+  //       print('Inicio de sesión fallido');
+
+  //       Future.delayed(const Duration(seconds: 2), () {
+  //         setState(() {
+  //           _isLoading = false;
+  //         });
+  //         // Mostrar notificación de error al usuario
+  //         showErrorNotification(
+  //             context,
+  //             'Inicio de sesión fallido, Revisa el usuario y la contrasenia',
+  //             0);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     // Manejo de errores (por ejemplo, problemas de red, errores del servidor, etc.)
+  //     print('Error durante el inicio de sesión: $e');
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     showErrorNotification(context, 'Error: $e', 0);
+  //   }
+  // }
 }

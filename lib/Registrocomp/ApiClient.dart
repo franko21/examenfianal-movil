@@ -21,12 +21,43 @@ class Employee {
 }
 
 class ApiClient {
+  static const String baseUrl0 = 'http://10.0.2.2:8080/api';
   static const String baseUrl = 'http://10.0.2.2:8080/auth';
   static const String baseUrl2 =
       'http://10.0.2.2:8080/api/personnelE/iclockT/fecha/v2';
   static const String baseUrl3 = 'http://10.0.2.2:8080/api/userinfo/v2';
   static const String baseUrl4 = 'http://10.0.2.2:8080/departamentos/v2';
   static const String baseUrl5 = 'http://10.0.2.2:8080/odo';
+
+  Future<List<String>> dataTablePersonas() async {
+    List<String> personaStringList = [];
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl0/persona'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(response.body);
+
+        // Convertir directamente la lista de mapas (JSON) en una lista de Strings
+        personaStringList = jsonList.map((json) {
+          // Suponiendo que cada elemento es un mapa con claves como 'id', 'nombre', 'apellido'
+          return 'ID: ${json['id']}, Nombre: ${json['nombre']}, Apellido: ${json['apellido']}, Cedula: ${json['cedula']}';
+        }).toList();
+
+        print('$baseUrl0/persona');
+        return personaStringList;
+      } else {
+        print('Error al obtener datos desde la API: ${response.statusCode}');
+        print('$baseUrl0/persona');
+        return personaStringList;
+      }
+    } catch (e) {
+      // Manejar errores de conexión
+      print('Error de conexión: $e');
+      return personaStringList;
+    }
+  }
 
   Future<String> existeEmpleado(String cedula) async {
     try {
@@ -99,31 +130,59 @@ class ApiClient {
     }
   }
 
-  Future<String> signinUser(
-      String username, String password, String role) async {
+  // Future<String> signinUser(
+  //     String username, String password, String role) async {
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('$baseUrl/v2/signin'),
+  //       body: {
+  //         'username': username.replaceAll(RegExp(r'^0+'), ''),
+  //         'password': password
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       // Registro exitoso
+  //       final rolB = json.decode(response.body)['empleado']['role'];
+  //       final nombreB = json.decode(response.body)['empleado']['nombre'];
+  //       final apellidoB = json.decode(response.body)['empleado']['apellido'];
+  //       final cedulaB = json.decode(response.body)['empleado']['dni'];
+  //       print('Usuario logeado exitosamente. Rol: $rolB');
+  //       role = rolB.toString();
+
+  //       return '$rolB $nombreB $apellidoB $cedulaB';
+  //     } else {
+  //       // Manejar errores de registro
+  //       print(
+  //           'Error en el inicio de sesión:  ${response.statusCode} ${response.toString()}');
+  //       return '';
+  //     }
+  //   } catch (e) {
+  //     // Manejar errores de conexión
+  //     print('Error de conexión: $e');
+  //     return '';
+  //   }
+  // }
+  Future<String> signinUser(String username, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/v2/signin'),
-        body: {
-          'username': username.replaceAll(RegExp(r'^0+'), ''),
-          'password': password
-        },
+      final response = await http.get(
+        Uri.parse('$baseUrl0/admin/$username/$password'),
       );
 
       if (response.statusCode == 200) {
-        // Registro exitoso
-        final rolB = json.decode(response.body)['empleado']['role'];
-        final nombreB = json.decode(response.body)['empleado']['nombre'];
-        final apellidoB = json.decode(response.body)['empleado']['apellido'];
-        final cedulaB = json.decode(response.body)['empleado']['dni'];
-        print('Usuario logeado exitosamente. Rol: $rolB');
-        role = rolB.toString();
-
-        return '$rolB $nombreB $apellidoB $cedulaB';
+        // La respuesta es true si las credenciales son correctas
+        if (response.body == 'true') {
+          // Puedes personalizar esta parte para manejar la respuesta correcta
+          print('Usuario logeado exitosamente.');
+          return 'Login exitoso';
+        } else {
+          // Credenciales incorrectas
+          print('Credenciales incorrectas');
+          return '';
+        }
       } else {
-        // Manejar errores de registro
-        print(
-            'Error en el inicio de sesión:  ${response.statusCode} ${response.toString()}');
+        // Manejar otros errores HTTP
+        print('Error en el inicio de sesión: ${response.statusCode}');
         return '';
       }
     } catch (e) {

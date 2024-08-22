@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ecuaminerales',
+      title: 'TECAZUAY',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -45,10 +45,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.build, size: 100, color: Colors.orange),
+            Icon(Icons.build, size: 100, color: Colors.blue),
             SizedBox(height: 20),
             Text(
-              'Bienvenido Ecuaminerals',
+              'Bienvenido TECAUAY',
               style: TextStyle(fontSize: 24),
             ),
           ],
